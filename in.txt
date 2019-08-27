@@ -1,0 +1,13 @@
+int float bool char string if then else
+while do input output return const static
+foreach for switch case break continue class
+private public protected end default
+
+,   ;   :   (   )   [   ]   {   }   +   -   |   ?   @
+*   /   <   >   =   !   &   %   #   ^   .   $   ~   `
+
+
+<=    >=    ==     !=    &&    ||    >>     <<     %>%    %|%
+
+ansdZasknNA23KS43JD3N_Ams__nkAajs_ASDA5sndAS
+Aj _0 a Z _ jA A01a
