@@ -45,7 +45,7 @@ protected				{ return TK_PR_PROTECTED    ; }
 "<<"					{ return TK_OC_SR           ; }  
 "%>%"					{ return TK_OC_FORWARD_PIPE ; }  
 "%|%"					{ return TK_OC_BASH_PIPE    ; }  
-end						{ return TK_PR_END          ; }  
+end						{ return TK_PR_END          ; } 
 default					{ return TK_PR_DEFAULT      ; }
 {id}					{ return TK_IDENTIFICADOR	; }
 {especialChar}			{ return yytext[0]			; }
