@@ -18,6 +18,8 @@ litFloat {rawFloat}|{sciFloat}
 
 litChar '({letra}|{numero}|{especialChar})'
 
+litString \"[^\"]*\"
+
 %%
 
 " "+					//skip whitespace
@@ -68,6 +70,7 @@ default					{ return TK_PR_DEFAULT      ; }
 {litInt}				{ return TK_LIT_INT			; }
 {litFloat}				{ return TK_LIT_FLOAT		; }
 {litChar}				{ return TK_LIT_CHAR		; }
+{litString}				{ return TK_LIT_STRING		; }
 
 "\n"					line_counter++;
 
