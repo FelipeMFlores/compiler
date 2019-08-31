@@ -11,7 +11,9 @@ id {letra}({letra}|{numero})*
 especialChar ["," ";" ":" "(" ")" \] \[ "{" "}" "+" \- "|" "?" "@" "*" "/" "<" ">" "=" "!" "&" "%" "#" "^" "." "$" "~" "`"]
 
 litInt ("+"|"-")?{numero}+
-
+rawFloat {numero}+("."){numero}+
+sciFloat (({numero}+)|{rawFloat})("e"|"E"){litInt}
+litFloat {rawFloat}|{sciFloat}
 
 %%
 
@@ -57,6 +59,7 @@ default					{ return TK_PR_DEFAULT      ; }
 {especialChar}			{ return yytext[0]			; }
 
 {litInt}				{ return TK_LIT_INT			; }
+{litFloat}				{ return TK_LIT_FLOAT		; }
 
 "\n"					line_counter++;
 
