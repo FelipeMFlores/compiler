@@ -10,6 +10,8 @@ numero [0-9]
 id {letra}({letra}|{numero})*
 especialChar ["," ";" ":" "(" ")" \] \[ "{" "}" "+" \- "|" "?" "@" "*" "/" "<" ">" "=" "!" "&" "%" "#" "^" "." "$" "~" "`"]
 
+litInt ("+"|"-")?{numero}+
+
 
 %%
 
@@ -53,6 +55,8 @@ end						{ return TK_PR_END          ; }
 default					{ return TK_PR_DEFAULT      ; }
 {id}					{ return TK_IDENTIFICADOR	; }
 {especialChar}			{ return yytext[0]			; }
+
+{litInt}				{ return TK_LIT_INT			; }
 
 "\n"					line_counter++;
 
