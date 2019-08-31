@@ -3,11 +3,6 @@
 
 int line_counter = 1;
 
-void yyerror(char *e) {
-	printf("%s\n", e);
-}
-
-
 %}
 
 letra [a-z]|[A-Z]|_
@@ -35,7 +30,7 @@ litString \"[^\"]*\"
 <COMMENT>"*/" 			{ BEGIN(INITIAL)			; }
 <COMMENT>(.) 			;
 <COMMENT>("\n")			line_counter++;
-<COMMENT><<EOF>> 		{ yyerror("===> EOF sem terminar comentario multilinha!!!"); return -1; }
+<COMMENT><<EOF>> 		{ return TOKEN_ERRO			; }
 
 " "+					//skip whitespace
 int						{ return TK_PR_INT          ; }
@@ -88,6 +83,8 @@ default					{ return TK_PR_DEFAULT      ; }
 {litString}				{ return TK_LIT_STRING		; }
 
 "\n"					line_counter++;
+
+.						{ return TOKEN_ERRO			; }
 
 %%
 
