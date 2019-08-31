@@ -3,3 +3,6 @@ lex.yy.c
 
 # analisador:
 analisador
+
+# arquivo de entradas de teste 2:
+in2.txt

@@ -1,5 +1,8 @@
 %{
 #include "tokens.h"
+
+int line_counter = 1;
+
 %}
 
 letra [a-z]|[A-Z]|_
@@ -9,6 +12,7 @@ especialChar ["," ";" ":" "(" ")" \] \[ "{" "}" "+" \- "|" "?" "@" "*" "/" "<" "
 
 
 %%
+
 " "+					//skip whitespace
 int						{ return TK_PR_INT          ; }
 float					{ return TK_PR_FLOAT        ; }  
@@ -49,10 +53,13 @@ end						{ return TK_PR_END          ; }
 default					{ return TK_PR_DEFAULT      ; }
 {id}					{ return TK_IDENTIFICADOR	; }
 {especialChar}			{ return yytext[0]			; }
+
+"\n"					line_counter++;
+
 %%
 
 int get_line_number () {
-	return 0;
+	return line_counter;
 }
 
 void yylex_destroy() {

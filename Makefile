@@ -10,5 +10,8 @@ run: analisador
 test: analisador in.txt
 	./analisador < in.txt
 
+test2: analisador in2.txt
+	./analisador < in2.txt
+
 clean:
 	rm -f analisador lex.yy.c
