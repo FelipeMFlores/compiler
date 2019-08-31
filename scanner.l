@@ -11,9 +11,12 @@ id {letra}({letra}|{numero})*
 especialChar ["," ";" ":" "(" ")" \] \[ "{" "}" "+" \- "|" "?" "@" "*" "/" "<" ">" "=" "!" "&" "%" "#" "^" "." "$" "~" "`"]
 
 litInt ("+"|"-")?{numero}+
+
 rawFloat {numero}+("."){numero}+
 sciFloat (({numero}+)|{rawFloat})("e"|"E"){litInt}
 litFloat {rawFloat}|{sciFloat}
+
+litChar '({letra}|{numero}|{especialChar})'
 
 %%
 
@@ -43,6 +46,10 @@ class					{ return TK_PR_CLASS        ; }
 private					{ return TK_PR_PRIVATE      ; }  
 public					{ return TK_PR_PUBLIC       ; }  
 protected				{ return TK_PR_PROTECTED    ; }  
+
+false					{ return TK_LIT_FALSE		; }
+true 					{ return TK_LIT_TRUE        ; }
+
 "<="					{ return TK_OC_LE           ; }  
 ">="					{ return TK_OC_GE           ; } 
 "=="					{ return TK_OC_EQ           ; }  
@@ -60,6 +67,7 @@ default					{ return TK_PR_DEFAULT      ; }
 
 {litInt}				{ return TK_LIT_INT			; }
 {litFloat}				{ return TK_LIT_FLOAT		; }
+{litChar}				{ return TK_LIT_CHAR		; }
 
 "\n"					line_counter++;
 
