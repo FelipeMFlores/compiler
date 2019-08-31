@@ -54,3 +54,7 @@ default					{ return TK_PR_DEFAULT      ; }
 int get_line_number () {
 	return 0;
 }
+
+void yylex_destroy() {
+	return;
+}

@@ -1,0 +1,5 @@
+# ignora arquivo c gerado pelo flex:
+lex.yy.c
+
+# analisador:
+analisador
