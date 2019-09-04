@@ -13,7 +13,7 @@ especialChar ["," ";" ":" "(" ")" \] \[ "{" "}" "+" \- "|" "?" "@" "*" "/" "<" "
 litInt ("+"|"-")?{numero}+
 
 rawFloat {litInt}("."){numero}+
-sciFloat (({numero}+)|{rawFloat})("e"|"E"){litInt}
+sciFloat ({litInt}|{rawFloat})("e"|"E"){litInt}
 litFloat {rawFloat}|{sciFloat}
 
 litChar '({letra}|{numero}|{especialChar})'
