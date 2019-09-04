@@ -84,6 +84,9 @@ default					{ return TK_PR_DEFAULT      ; }
 
 "\n"					line_counter++;
 
+
+({litInt}|{litFloat})[^" ""\n"]		{ return TOKEN_ERRO	; }
+
 .						{ return TOKEN_ERRO			; }
 
 %%
