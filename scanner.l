@@ -12,7 +12,7 @@ especialChar ["," ";" ":" "(" ")" \] \[ "{" "}" "+" \- "|" "?" "@" "*" "/" "<" "
 
 litInt ("+"|"-")?{numero}+
 
-rawFloat {numero}+("."){numero}+
+rawFloat {litInt}("."){numero}+
 sciFloat (({numero}+)|{rawFloat})("e"|"E"){litInt}
 litFloat {rawFloat}|{sciFloat}
 
