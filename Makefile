@@ -8,10 +8,11 @@ run: analisador
 	./analisador
 
 test: analisador in.txt
-	./analisador < in.txt
+	./analisador < in.txt > out.txt
+	diff result.txt out.txt
 
 test2: analisador in2.txt
 	./analisador < in2.txt
 
 clean:
-	rm -f analisador lex.yy.c
+	rm -f analisador lex.yy.c out.txt

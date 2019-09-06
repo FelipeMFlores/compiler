@@ -95,6 +95,3 @@ int get_line_number () {
 	return line_counter;
 }
 
-void yylex_destroy() {
-	return;
-}
