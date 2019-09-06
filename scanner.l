@@ -85,7 +85,7 @@ default					{ return TK_PR_DEFAULT      ; }
 "\n"					line_counter++;
 
 
-({litInt}|{litFloat})[^" ""\n"]		{ return TOKEN_ERRO	; }
+({litInt}|{litFloat})([^"+""-""*""/""%""<"">""<="">=""==""!=""&&""||"">>""<<""%>%""%|%""|""&""^"";"" ""\n"])*	{ return TOKEN_ERRO	; }
 
 
 \'[^(\'|{letra}|{numero}|{especialChar})]*\'	{ return TOKEN_ERRO ;}
