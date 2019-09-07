@@ -50,7 +50,7 @@ void yyerror (char const *s);
 %token TOKEN_ERRO
 %%
 
-programa:
+programa :	TK_LIT_INT;
 
 %%
 

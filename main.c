@@ -11,5 +11,14 @@ int main (int argc, char **argv)
 {
   int ret = yyparse();
   yylex_destroy();
+
+  if (ret == 1) {
+  	printf("-- Invalid input.\n");
+  }
+  if (ret == 0) {
+  	printf("-- Program recognized.\n");
+  }
+   printf(" Retorno: %d\n", ret);
+
   return ret;
 }
