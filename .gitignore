@@ -6,3 +6,8 @@ analisador
 
 # arquivo de entradas de teste 2:
 in2.txt
+
+# --
+*.o
+parser.tab.c
+parser.tab.h
