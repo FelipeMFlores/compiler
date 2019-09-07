@@ -50,8 +50,127 @@ void yyerror (char const *s);
 %token TOKEN_ERRO
 %%
 
-programa :	TK_LIT_INT;
+program:			decl_var_glob program | func program | %empty
+;
 
+decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' |
+					type TK_IDENTIFICADOR ';' |
+					TK_PR_STATIC type TK_IDENTIFICADOR '[' TK_LIT_INT ']' ';' |
+					type TK_IDENTIFICADOR '[' TK_LIT_INT ']' ';'
+;
+
+func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list command_block |
+					type TK_IDENTIFICADOR param_list command_block
+;
+
+param_list:			'(' ')' |
+					'(' param_list_aux
+;
+
+param_list_aux:		type TK_IDENTIFICADOR ')' |
+					type TK_IDENTIFICADOR ',' param_list_aux |
+					TK_PR_CONST type TK_IDENTIFICADOR ')' |
+					TK_PR_CONST type TK_IDENTIFICADOR ',' param_list_aux
+;
+
+command_block:		'{' '}' |
+					'{' command_block_aux
+;
+
+command_block_aux:	simple_command ';' '}' |
+					simple_command ';' command_block_aux |
+					control_flow_command '}' |
+					control_flow_command command_block_aux
+;
+
+simple_command:		command_block | decl_var_local | assignment | input | output |
+					func_call | shift | return | break | continue
+;
+
+decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR |
+					type TK_IDENTIFICADOR |
+					local_var_qualifier type TK_IDENTIFICADOR local_var_init |
+					type TK_IDENTIFICADOR local_var_init
+;
+
+local_var_qualifier:	TK_PR_STATIC | TK_PR_CONST | TK_PR_STATIC TK_PR_CONST
+;
+
+local_var_init:		TK_OC_LE TK_IDENTIFICADOR |
+					TK_OC_LE litValue
+;
+
+litValue:			TK_LIT_INT | TK_LIT_FLOAT | TK_LIT_FALSE | TK_LIT_TRUE | TK_LIT_CHAR | TK_LIT_STRING
+;
+
+assignment:			TK_IDENTIFICADOR '=' expression |
+					TK_IDENTIFICADOR '[' expression ']' '=' expression
+;
+
+input:				TK_PR_INPUT expression
+;
+
+output:				TK_PR_OUTPUT out_expr_list
+;
+
+out_expr_list:		expression | expression ',' out_expr_list
+;
+
+func_call:			TK_IDENTIFICADOR '(' ')' |
+					TK_IDENTIFICADOR '(' func_call_list
+;
+
+func_call_list:		expression ')' |
+					expression ',' func_call_list
+;
+
+shift:				TK_IDENTIFICADOR TK_OC_SR expression |
+					TK_IDENTIFICADOR TK_OC_SL expression |
+					TK_IDENTIFICADOR '[' expression ']' TK_OC_SR expression |
+					TK_IDENTIFICADOR '[' expression ']' TK_OC_SL expression
+;
+
+return:				TK_PR_RETURN expression
+;
+
+break:				TK_PR_BREAK
+;
+
+continue:			TK_PR_CONTINUE
+;
+
+control_flow_command:	TK_PR_IF '(' expression ')' command_block |
+						TK_PR_IF '(' expression ')' command_block TK_PR_ELSE command_block |
+						TK_PR_WHILE '(' expression ')' TK_PR_DO command_block |
+						for_command
+;
+
+for_command:		TK_PR_FOR '(' for_list ':' expression ':' for_list ')' command_block
+;
+
+for_list:			for_list_simple_command |
+					for_list_simple_command ',' for_list
+;
+
+for_list_simple_command:	
+					command_block |
+					decl_var_local |
+					assignment |
+					input |
+					shift |
+					return |
+					break |
+					continue
+;
+
+type:				TK_PR_INT | TK_PR_FLOAT | TK_PR_BOOL | TK_PR_CHAR | TK_PR_STRING
+;
+
+
+expression:			TK_IDENTIFICADOR
+;
+
+	
 %%
 
 void yyerror (char const *s){
