@@ -1,0 +1,167 @@
+<programa> ::=
+	<decl_var_glob> <programa> |
+	<func> <programa> |
+	"empty"
+
+# ==============================================================================
+
+<decl_var_glob> ::=
+	"static" <type> <id> ";" |
+	<type> <id> ";" |
+
+	"static" <type> <id> "[" <litInt> "]" ";" |
+	<type> <id> "[" <litInt> "]" ";" 
+
+# ==============================================================================
+
+<func> ::=
+	"static" <type> <id> <param_list> <command_block> |
+	<type> <id> <param_list> <command_block>
+
+
+# ==============================================================================
+
+<param_list> ::=
+	"(" ")" |
+	"(" <param_list_aux>
+
+<param_list_aux> ::=
+	<type> <id> ")" |
+	<type> <id> "," <param_list_aux> |
+
+	"const" <type> <id> ")" |
+	"const" <type> <id> "," <param_list_aux>
+
+# ==============================================================================
+
+<command_block> ::=
+	"{" "}" |
+	"{" <command_block_aux>
+
+<command_block_aux> ::=
+	<simple_command> ";" "}" |
+	<simple_command> ";" <command_block_aux> |
+
+	<control_flow_command> "}" |
+	<control_flow_command> <command_block_aux>
+
+
+# ==============================================================================
+
+<simple_command> ::=
+	<command_block> |
+	<decl_var_local> |
+	<assignment> |
+	<input> |
+	<output> |
+	<func_call> |
+	<shift> |
+	<return> |
+	<break> |
+	<continue>
+
+# -----------------------------
+
+<decl_var_local> ::=
+	<local_var_qualifier> <type> <id> |
+	<type> <id> |
+	<local_var_qualifier> <type> <id> <local_var_init>|
+	<type> <id> <local_var_init>
+
+
+
+<local_var_qualifier> ::= 
+	"static" |
+	"const" |
+	"static" "const"
+
+
+<local_var_init> ::=
+	"<=" <id> |
+	"<=" <litValue>
+
+<litValue> ::=
+	<litInt> | <litFloat> | <litFalse> | <litTRue> | <litChar> | <litString>
+
+# -----------------------------
+
+<assignment> ::=
+	<id> "=" <expression> |
+	<id> "[" <expression> "]" "=" <expression>
+
+# -----------------------------
+
+<input> ::=
+	"input" <expression>
+
+<output> ::=
+	"output" <out_exp_list>
+
+<out_exp_list> ::=
+	<expression> |
+	<expression> "," <out_exp_list>
+
+# -----------------------------
+
+<func_call> ::=
+	<id> "(" ")" |
+	<id> "(" <func_call_list>
+
+<func_call_list> ::=
+	<expression> ")" |
+	<expression> "," <func_call_list>
+
+# -----------------------------
+
+<shift> ::=
+	<id> "<<" <expression> |
+	<id> ">>" <expression> |
+
+	<id> "[" <expression> "]" "<<" <expression> |
+	<id> "[" <expression> "]" ">>" <expression> 
+
+# -----------------------------
+
+<return> ::=
+	"return" <expression>
+
+<break> ::=
+	"break"
+
+<continue> ::=
+	"continue"
+
+# ==============================================================================
+
+<control_flow_command> ::=
+	"if" "(" <expression> ")" <command_block> |
+	"if" "(" <expression> ")" <command_block> "else" <command_block> |
+	"while" "(" <expression> ")" do <command_block> |
+	<for_command>
+
+<for_list_simple_command> ::=
+	<command_block> |
+	<decl_var_local> |
+	<assignment> |
+	<input> |
+	<shift> |
+	<return> |
+	<break> |
+	<continue>
+
+<for_list> ::=
+	<for_list_simple_command> |
+	<for_list_simple_commmand> "," <for_list>
+
+<for_command> ::=
+	"for" "(" <for_list> ":" <expression> ":" <for_list> ")" <command_block>
+
+# ==============================================================================
+
+<type> ::=
+	<prInt> | <prFLoat> | <prChar> | <prBool> | <prString>
+
+
+# ==============================================================================
+
+<expression> ::= id
