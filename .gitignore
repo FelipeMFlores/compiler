@@ -11,3 +11,4 @@ in2.txt
 *.o
 parser.tab.c
 parser.tab.h
+parser
