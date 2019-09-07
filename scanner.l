@@ -85,11 +85,16 @@ default					{ return TK_PR_DEFAULT      ; }
 "\n"					line_counter++;
 
 
-({litInt}|{litFloat})[^" ""\n"]		{ return TOKEN_ERRO	; }
+({litInt}|{litFloat})([^"+""-""*""/""%""<"">""<="">=""==""!=""&&""||"">>""<<""%>%""%|%""|""&""^"";"" ""\n"])*	{ return TOKEN_ERRO	; }
+
+
+\'[^(\'|{letra}|{numero}|{especialChar})]*\'	{ return TOKEN_ERRO ;}
+\'{id}\'				{ return TOKEN_ERRO 		; }
 
 .						{ return TOKEN_ERRO			; }
 
 %%
+
 
 int get_line_number () {
 	return line_counter;
