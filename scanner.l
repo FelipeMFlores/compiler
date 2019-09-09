@@ -1,5 +1,5 @@
 %{
-#include "parser.tab.h"
+#include "tokens.h"
 
 int line_counter = 1;
 
@@ -86,9 +86,8 @@ default					{ return TK_PR_DEFAULT      ; }
 "\n"					line_counter++;
 
 
-({litInt}|{litFloat})([^"+""-""*""/""%""<"">""<="">=""==""!=""&&""||"">>""<<""%>%""%|%""|""&""^"";"" ""\n""\t"])*	{ return TOKEN_ERRO	; }
 
-
+({litInt}|{litFloat})({id})     { return TOKEN_ERRO ;}
 \'[^(\'|{letra}|{numero}|{especialChar})]*\'	{ return TOKEN_ERRO ;}
 \'{id}\'				{ return TOKEN_ERRO 		; }
 
