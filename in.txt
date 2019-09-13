@@ -1,0 +1,73 @@
+int global;
+float global2;
+char global3;
+bool global4;
+string global5;
+static int glob5;
+int conj[1];
+
+int func (){}
+
+static float func(int ola,float pessoal, const bool tudo){
+{{{};};};
+}
+
+string global5;
+static int glob5;
+
+string funcaum (){
+    int loc;
+    static bool hey;
+    static const string id;
+    char att <= true;
+    char att <= ola;
+    meu = amigo;
+    meu[outro] = amigo;
+    input entrada;
+    output ola, mundo;
+    funcao(ola, funcao);
+    id << shi;
+    id >> shi;
+    id[i] >> shu;
+    return exp;
+    break;
+    continue;
+    if ( alsssgo ) {int loc;} 
+    if (algo) {} else {}
+    for(id = id ,as = as: id: ad = as,as = aa) {}
+
+    //expressoes
+
+    //arit
+    //meu = 4;
+    //meu = aaa[2];
+    //meu = id;
+    //meu = 1.3;
+    //meu = foo(chama, ela);
+
+    //unaria
+    //meu = +4;
+    //meu = +-4;
+    //meu = ++4;
+    //meu = -aaa[2];
+    //meu = !id;
+    //meu = &1.3;
+    //meu = *foo(chama, ela);
+    //meu = ?olar;
+    //meu = #unario;
+
+    ///binaria
+    //meu = 3 + id;
+    //meu = azul - tres[3];
+    //meu = foo() * claro;
+    //meu = 200 / 0;
+    //meu = id % resto;
+    //meu = bit | or;
+    //meu = exp ^ 4;
+    //meu = as == olar
+    //meu = oq > aui
+    //outros comparadores relacionais ...
+
+    //ternarios
+    //meu = id[foo()] ? exp : treis
+}
