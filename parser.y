@@ -1,8 +1,12 @@
 
 %{
+#include <stdio.h>
 int yylex(void);
 void yyerror (char const *s);
+extern int get_line_number();
+int erro = 0;
 %}
+%define parse.error verbose
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL
@@ -50,7 +54,10 @@ void yyerror (char const *s);
 %token TOKEN_ERRO
 %%
 
-program:			decl_var_glob program | func program | %empty
+program:			decl_var_glob program {if(erro) YYABORT;} 
+					| func program { if(erro) YYABORT;} 
+					| %empty { if(erro) YYABORT;} 
+					| error program {erro = 1;}
 ;
 
 decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' |
@@ -81,6 +88,8 @@ command_block_aux:	simple_command ';' '}' |
 					simple_command ';' command_block_aux |
 					control_flow_command '}' |
 					control_flow_command command_block_aux
+					| error '}' {erro = 1;}
+					| error ';' command_block_aux {erro = 1;}
 ;
 
 simple_command:		command_block | decl_var_local | assignment | input | output |
@@ -174,5 +183,6 @@ expression:			TK_IDENTIFICADOR
 %%
 
 void yyerror (char const *s){
-    
+	int line = get_line_number();
+    fprintf (stderr, "%s , line: %d \n", s, line);
 }
