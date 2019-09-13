@@ -7,6 +7,9 @@ analisador
 # arquivo de entradas de teste 2:
 in2.txt
 
+# arquivo criado por algum motivo ao dar erro ao fazer make:
+report.txt
+
 # --
 *.o
 parser.tab.c
