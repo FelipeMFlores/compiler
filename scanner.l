@@ -10,7 +10,7 @@ numero [0-9]
 id {letra}({letra}|{numero})*
 especialChar ["," ";" ":" "(" ")" \] \[ "{" "}" "+" \- "|" "?" "@" "*" "/" "<" ">" "=" "!" "&" "%" "#" "^" "." "$" "~" "`"]
 
-litInt ("+"|"-")?{numero}+
+litInt {numero}+
 
 rawFloat {litInt}("."){numero}+
 sciFloat ({litInt}|{rawFloat})("e"|"E"){litInt}
