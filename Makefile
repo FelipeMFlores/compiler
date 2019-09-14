@@ -4,13 +4,13 @@ build: scanner.l main.c parser.y
 	bison -d parser.y  -v --report-file=report.txt
 	flex scanner.l
 	gcc -c main.c lex.yy.c parser.tab.c 
-	gcc -o parser main.o lex.yy.o parser.tab.o -lfl   
+	gcc -o etapa2 main.o lex.yy.o parser.tab.o -lfl   
 
-run: parser
-	./parser
+run: etapa2
+	./etapa2
 
-test: parser in.txt
-	./parser < in.txt
+test: etapa2 in.txt
+	./etapa2 < in.txt
 
 clean:
-	rm -f parser *.o parser.tab.h parser.tab.c lex.yy.c report.txt
+	rm -f etapa2 *.o parser.tab.h parser.tab.c lex.yy.c report.txt
