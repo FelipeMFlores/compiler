@@ -178,15 +178,15 @@ type:				TK_PR_INT | TK_PR_FLOAT | TK_PR_BOOL | TK_PR_CHAR | TK_PR_STRING
 
 expression:			l11 ;
 l11:				l10 '?' l10 ':' l10 | l10 ;
-l10:				l9 relational_operator l9 | l9 ;
-l9:					l8 TK_OC_OR l8 | l8 ;
-l8: 				l7 TK_OC_AND l7 | l7 ;
-l7:					l6 TK_OC_FORWARD_PIPE l6 | l6 TK_OC_BASH_PIPE l6 | l6 ;
-l6:					l5 TK_OC_SL l5 | l5 TK_OC_SR l5 | l5 ;
-l5:					l4 '+' l4 | l4 '-' l4 | l4 ;
-l4:					l3 '&' l3 | l3 '|' l3 | l3 ;
-l3:					l2 '*' l2 | l2 '/' l2 | l2 '%' l2 | l2 ;
-l2:					l1 '^' l1 | l1 ;
+l10:				l10 relational_operator l9 | l9 ;
+l9:					l9 TK_OC_OR l8 | l8 ;
+l8: 				l8 TK_OC_AND l7 | l7 ;
+l7:					l7 TK_OC_FORWARD_PIPE l6 | l7 TK_OC_BASH_PIPE l6 | l6 ;
+l6:					l6 TK_OC_SL l5 | l6 TK_OC_SR l5 | l5 ;
+l5:					l5 '+' l4 | l5 '-' l4 | l4 ;
+l4:					l4 '&' l3 | l4 '|' l3 | l3 ;
+l3:					l3 '*' l2 | l3 '/' l2 | l3 '%' l2 | l2 ;
+l2:					l2 '^' l1 | l1 ;
 l1:					unary_operator l0 | l0 ;
 l0:					literal_expression | '(' expression ')' ;
 
