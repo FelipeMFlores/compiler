@@ -52,4 +52,3 @@ caracteres isolados.
 #define TOKEN_ERRO         298
 #define TK_PR_END          299
 #define TK_PR_DEFAULT      300
-

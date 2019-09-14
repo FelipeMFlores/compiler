@@ -2,17 +2,17 @@ CC = gcc
 
 build: scanner.l main.c tokens.h
 	flex scanner.l
-	gcc main.c lex.yy.c -o analisador -lfl
+	gcc main.c lex.yy.c -o etapa1 -lfl
 
-run: analisador
-	./analisador
+run: etapa1
+	./etapa1
 
-test: analisador in.txt
-	./analisador < in.txt > out.txt
+test: etapa1 in.txt
+	./etapa1 < in.txt > out.txt
 	diff result.txt out.txt
 
-test2: analisador in2.txt
-	./analisador < in2.txt
+test2: etapa1 in2.txt
+	./etapa1 < in2.txt
 
 clean:
-	rm -f analisador lex.yy.c out.txt
+	rm -f etapa1 lex.yy.c out.txt
