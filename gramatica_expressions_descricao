@@ -1,3 +1,11 @@
+12 níveis de prioridade:
+  l11 (menor prioridade) -> l0 (maior prioridade).
+
+-- expressões literais:
+	literais inteiros, literais float, literal false, literal true, literais char, literais string, identificador, identificador[expressao], chamada de função.
+
+
+----------------------------------------------------------------------------------
 
 <expression> ::=
 	<l11>
