@@ -39,35 +39,36 @@ string funcaum (){
     //expressoes
 
     //arit
-    //meu = 4;
-    //meu = aaa[2];
-    //meu = id;
-    //meu = 1.3;
-    //meu = foo(chama, ela);
+    meu = 4;
+    meu = aaa[2];
+    meu = id;
+    meu = 1.3;
+    meu = foo(chama, ela);
 
     //unaria
-    //meu = +4;
-    //meu = +-4;
-    //meu = ++4;
-    //meu = -aaa[2];
-    //meu = !id;
-    //meu = &1.3;
-    //meu = *foo(chama, ela);
-    //meu = ?olar;
-    //meu = #unario;
+    meu = +4;
+    meu = -3;
+    meu = ++4;
+    meu = -aaa[2];
+    meu = !id;
+    meu = &1.3;
+    meu = *foo(chama, ela);
+    meu = ?olar;
+    meu = #unario;
 
     ///binaria
-    //meu = 3 + id;
-    //meu = azul - tres[3];
-    //meu = foo() * claro;
-    //meu = 200 / 0;
-    //meu = id % resto;
-    //meu = bit | or;
-    //meu = exp ^ 4;
-    //meu = as == olar
-    //meu = oq > aui
+    meu = 3 + id;
+    meu = 3+4*2/4^2|1>4*2==1;
+    meu = azul - tres[3];
+    meu = foo() * claro;
+    meu = 200 / 0;
+    meu = id % resto;
+    meu = bit | or;
+    meu = exp ^ 4;
+    meu = as == olar;
+    meu = oq > aui;
     //outros comparadores relacionais ...
 
     //ternarios
-    //meu = id[foo()] ? exp : treis
+    meu = id[foo()] ? exp : treis;
 }

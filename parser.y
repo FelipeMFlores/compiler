@@ -187,7 +187,7 @@ l5:					l5 '+' l4 | l5 '-' l4 | l4 ;
 l4:					l4 '&' l3 | l4 '|' l3 | l3 ;
 l3:					l3 '*' l2 | l3 '/' l2 | l3 '%' l2 | l2 ;
 l2:					l2 '^' l1 | l1 ;
-l1:					unary_operator l0 | l0 ;
+l1:					unary_operator l1  | l0 ;
 l0:					literal_expression | '(' expression ')' ;
 
 relational_operator:	TK_OC_LE | TK_OC_GE | TK_OC_EQ | TK_OC_NE | '<' | '>' ;
