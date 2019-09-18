@@ -57,7 +57,7 @@ int erro = 0;
 program:			decl_var_glob program {if(erro) YYABORT;} 
 					| func program { if(erro) YYABORT;} 
 					| %empty { if(erro) YYABORT;} 
-					| error program {erro = 1;}
+					| error program {YYABORT;}
 ;
 
 decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' |
