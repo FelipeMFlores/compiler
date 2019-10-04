@@ -5,18 +5,26 @@
 #define ID 4
 #define LITERAL 5
 
+#define NAOLIT 0
+#define INT 1
+#define FLOAT 2
+#define CHAR 3
+#define BOOL 4
+#define STRING 5
+
 union value{
     int inteiro;
     float flutuante;
     char car;
-    int boolean;
-    char* cadeia;
+    char* boolean;
+    char* string;
 
 
 };
 struct valor_lexico {
     int line;
     int type;
+    int litType;
     union value value;
     
 };
@@ -34,4 +42,13 @@ void createComposto() ;
 
 void createID() ;
 
-void createLInt();
+void createLitInt();
+
+
+void createLitFlu();
+
+void createLitChar();
+
+void createLitString();
+
+void createBool();

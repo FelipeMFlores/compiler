@@ -1,7 +1,6 @@
 
 %{
 #include <stdio.h>
-#include "valor_lexico.h"
 #include "tree.h"
 int yylex(void);
 void yyerror (char const *s);

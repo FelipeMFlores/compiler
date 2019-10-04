@@ -59,17 +59,3 @@ void printTree(struct node* node){
         printTree(node->siblings);
     }
 }
-
-
-int main(){
-    struct node *n;
-    struct node *n2;
-    struct node *n3;
-    n = newNode(4);
-    n2 = newNode(2);
-    n3 = newNode(1);
-    addChild(n, n2);
-    addChild(n, n3);
-    printTree(n);
-    return 0;
-}

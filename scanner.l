@@ -62,8 +62,8 @@ private					{ createReservada(); return TK_PR_PRIVATE      ; }
 public					{ createReservada(); return TK_PR_PUBLIC       ; }  
 protected				{ createReservada(); return TK_PR_PROTECTED    ; }  
 
-false					{ return TK_LIT_FALSE		; }
-true 					{ return TK_LIT_TRUE        ; }
+false					{ createBool(); return TK_LIT_FALSE		; }
+true 					{ createBool(); return TK_LIT_TRUE        ; }
 
 "<="					{ createComposto(); return TK_OC_LE           ; }  
 ">="					{ createComposto(); return TK_OC_GE           ; } 
@@ -77,13 +77,13 @@ true 					{ return TK_LIT_TRUE        ; }
 "%|%"					{ createComposto(); return TK_OC_BASH_PIPE    ; }  
 end						{ createReservada(); return TK_PR_END          ; } 
 default					{ createReservada(); return TK_PR_DEFAULT      ; }
-{id}					{ return TK_IDENTIFICADOR	; }
-{especialChar}			{ return yytext[0]			; }
+{id}					{ createID(); 		return TK_IDENTIFICADOR	; }
+{especialChar}			{ createEspecial(); return yytext[0]			; }
 
-{litInt}				{ return TK_LIT_INT			; }
-{litFloat}				{ return TK_LIT_FLOAT		; }
-{litChar}				{ return TK_LIT_CHAR		; }
-{litString}				{ return TK_LIT_STRING		; }
+{litInt}				{ createLitInt(); return TK_LIT_INT			; }
+{litFloat}				{ createLitFlu(); return TK_LIT_FLOAT		; }
+{litChar}				{ createLitChar(); return TK_LIT_CHAR		; }
+{litString}				{ createLitString(); return TK_LIT_STRING		; }
 
 "\n"					line_counter++;
 
@@ -113,13 +113,15 @@ void createReservada() {
 	mallocVL();
 	line();
 	yylval.valor_lexico->type = RESERVADA;
-	yylval.valor_lexico->value.cadeia = strdup(yytext);
+	yylval.valor_lexico->litType = NAOLIT;
+	yylval.valor_lexico->value.string = strdup(yytext);
 }
 
 void createEspecial() {
 	mallocVL();
 	line();
 	yylval.valor_lexico->type = ESPECIAL;
+	yylval.valor_lexico->litType = NAOLIT;
 	yylval.valor_lexico->value.car = yytext[0]; // ultimo char lido
 }
 
@@ -127,21 +129,67 @@ void createComposto() {
 	mallocVL();
 	line();
 	yylval.valor_lexico->type = COMPOSTO;
-	yylval.valor_lexico->value.cadeia = strdup(yytext); 
+	yylval.valor_lexico->litType = NAOLIT;
+	yylval.valor_lexico->value.string = strdup(yytext); 
 }
 
 void createID() {
 	mallocVL();
 	line();
 	yylval.valor_lexico->type = ID;
-	yylval.valor_lexico->value.cadeia = strdup(yytext);
+	yylval.valor_lexico->litType = NAOLIT;
+	yylval.valor_lexico->value.string = strdup(yytext);
 }
 
-void createLInt() {
+void createLitInt() {
 	mallocVL();
 	line();
 	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = INT;
 	char* number = strdup(yytext);
-	yylval.valor_lexico->value.car = atoi(number); // ultimo char lido
+	yylval.valor_lexico->value.inteiro = atoi(number); 
 }
 
+void createLitFlu(){
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = FLOAT;
+	char* number = strdup(yytext);
+	yylval.valor_lexico->value.flutuante = atof(number); 
+}
+
+void createLitChar(){
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = CHAR;
+	char* c = strdup(yytext);
+	yylval.valor_lexico->value.car = c[1]; // sem as aspas
+}
+
+void createBool(){
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = BOOL;
+	yylval.valor_lexico->value.boolean = strdup(yytext);
+}
+
+void createLitString(){
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = STRING;
+	char* string = strdup(yytext);
+	string++; //remove first "
+	for(int i = 0; i ++; ){
+		if(string[i] == '"'){
+			string[i] = '\0';
+			break;
+		}
+	}
+	yylval.valor_lexico->value.string = string;
+	
+
+}
