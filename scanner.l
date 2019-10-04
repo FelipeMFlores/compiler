@@ -183,7 +183,8 @@ void createLitString(){
 	yylval.valor_lexico->litType = STRING;
 	char* string = strdup(yytext);
 	string++; //remove first "
-	for(int i = 0; i ++; ){
+	int i;
+	for(i = 0;; i++){
 		if(string[i] == '"'){
 			string[i] = '\0';
 			break;
