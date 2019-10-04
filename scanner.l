@@ -36,47 +36,47 @@ litString \"[^\"]*\"
 
 " "+					//skip whitespace
 "\t"+					//skip tabs
-int						{ createReservada(); printf("yylval: %s\n", yylval.valor_lexico->value); return TK_PR_INT          ; }
-float					{ return TK_PR_FLOAT        ; }  
-bool					{ return TK_PR_BOOL         ; }  
-char					{ return TK_PR_CHAR         ; }  
-string					{ return TK_PR_STRING       ; }  
-if						{ return TK_PR_IF           ; }  
-then					{ return TK_PR_THEN         ; } 
-else					{ return TK_PR_ELSE         ; }  
-while					{ return TK_PR_WHILE        ; }  
-do						{ return TK_PR_DO           ; }  
-input					{ return TK_PR_INPUT        ; }  
-output					{ return TK_PR_OUTPUT       ; }  
-return					{ return TK_PR_RETURN       ; }  
-const					{ return TK_PR_CONST        ; }  
-static					{ return TK_PR_STATIC       ; }  
-foreach					{ return TK_PR_FOREACH      ; }  
-for						{ return TK_PR_FOR          ; } 
-switch					{ return TK_PR_SWITCH       ; }  
-case					{ return TK_PR_CASE         ; }  
-break					{ return TK_PR_BREAK        ; }  
-continue				{ return TK_PR_CONTINUE     ; }  
-class					{ return TK_PR_CLASS        ; }  
-private					{ return TK_PR_PRIVATE      ; }  
-public					{ return TK_PR_PUBLIC       ; }  
-protected				{ return TK_PR_PROTECTED    ; }  
+int						{ createReservada(); return TK_PR_INT          ; }
+float					{ createReservada(); return TK_PR_FLOAT        ; }  
+bool					{ createReservada(); return TK_PR_BOOL         ; }  
+char					{ createReservada(); return TK_PR_CHAR         ; }  
+string					{ createReservada(); return TK_PR_STRING       ; }  
+if						{ createReservada(); return TK_PR_IF           ; }  
+then					{ createReservada(); return TK_PR_THEN         ; } 
+else					{ createReservada(); return TK_PR_ELSE         ; }  
+while					{ createReservada(); return TK_PR_WHILE        ; }  
+do						{ createReservada(); return TK_PR_DO           ; }  
+input					{ createReservada(); return TK_PR_INPUT        ; }  
+output					{ createReservada(); return TK_PR_OUTPUT       ; }  
+return					{ createReservada(); return TK_PR_RETURN       ; }  
+const					{ createReservada(); return TK_PR_CONST        ; }  
+static					{ createReservada(); return TK_PR_STATIC       ; }  
+foreach					{ createReservada(); return TK_PR_FOREACH      ; }  
+for						{ createReservada(); return TK_PR_FOR          ; } 
+switch					{ createReservada(); return TK_PR_SWITCH       ; }  
+case					{ createReservada(); return TK_PR_CASE         ; }  
+break					{ createReservada(); return TK_PR_BREAK        ; }  
+continue				{ createReservada(); return TK_PR_CONTINUE     ; }  
+class					{ createReservada(); return TK_PR_CLASS        ; }  
+private					{ createReservada(); return TK_PR_PRIVATE      ; }  
+public					{ createReservada(); return TK_PR_PUBLIC       ; }  
+protected				{ createReservada(); return TK_PR_PROTECTED    ; }  
 
 false					{ return TK_LIT_FALSE		; }
 true 					{ return TK_LIT_TRUE        ; }
 
-"<="					{ return TK_OC_LE           ; }  
-">="					{ return TK_OC_GE           ; } 
-"=="					{ return TK_OC_EQ           ; }  
-"!="					{ return TK_OC_NE           ; }  
-"&&"					{ return TK_OC_AND          ; }  
-"||"					{ return TK_OC_OR           ; }  
-">>"					{ return TK_OC_SL           ; }  
-"<<"					{ return TK_OC_SR           ; }  
-"%>%"					{ return TK_OC_FORWARD_PIPE ; }  
-"%|%"					{ return TK_OC_BASH_PIPE    ; }  
-end						{ return TK_PR_END          ; } 
-default					{ return TK_PR_DEFAULT      ; }
+"<="					{ createComposto(); return TK_OC_LE           ; }  
+">="					{ createComposto(); return TK_OC_GE           ; } 
+"=="					{ createComposto(); return TK_OC_EQ           ; }  
+"!="					{ createComposto(); return TK_OC_NE           ; }  
+"&&"					{ createComposto(); return TK_OC_AND          ; }  
+"||"					{ createComposto(); return TK_OC_OR           ; }  
+">>"					{ createComposto(); return TK_OC_SL           ; }  
+"<<"					{ createComposto(); return TK_OC_SR           ; }  
+"%>%"					{ createComposto(); return TK_OC_FORWARD_PIPE ; }  
+"%|%"					{ createComposto(); return TK_OC_BASH_PIPE    ; }  
+end						{ createReservada(); return TK_PR_END          ; } 
+default					{ createReservada(); return TK_PR_DEFAULT      ; }
 {id}					{ return TK_IDENTIFICADOR	; }
 {especialChar}			{ return yytext[0]			; }
 
@@ -144,3 +144,4 @@ void createLInt() {
 	char* number = strdup(yytext);
 	yylval.valor_lexico->value.car = atoi(number); // ultimo char lido
 }
+

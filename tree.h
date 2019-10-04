@@ -1,11 +1,13 @@
+#include "valor_lexico.h"
 struct node {
     int n;
+    struct valor_lexico *data;
     struct node *firstKid;
     struct node *siblings;
 };
 
 
-struct node* newNode(int data);
+struct node* newNode(struct valor_lexico *data);
 
 void freeTree(struct node* node);
 int removeNode(struct node* node);

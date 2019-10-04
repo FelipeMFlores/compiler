@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include "tree.h"
 
-struct node* newNode(int data) { 
+struct node* newNode(struct valor_lexico *data) { 
  
   struct node* node = (struct node*)malloc(sizeof(struct node)); 
-  node->n = data; 
+  node->n = 0;
+  node->data = data; 
   node->firstKid = NULL; 
   node->siblings = NULL; 
   return(node); 
