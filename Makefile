@@ -16,4 +16,4 @@ tree: tree.c
 	gcc tree.c -o tree
 	./tree
 clean:
-	rm -f etapa2 *.o parser.tab.h parser.tab.c lex.yy.c report.txt
+	rm -f etapa2 *.o parser.tab.h parser.tab.c lex.yy.c report.txt tree

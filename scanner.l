@@ -1,5 +1,7 @@
 %{
 #include "parser.tab.h"
+#include <string.h>
+#include "valor_lexico.h"
 
 int line_counter = 1;
 
@@ -34,7 +36,7 @@ litString \"[^\"]*\"
 
 " "+					//skip whitespace
 "\t"+					//skip tabs
-int						{ return TK_PR_INT          ; }
+int						{ createReservada(); printf("yylval: %s\n", yylval.valor_lexico->value); return TK_PR_INT          ; }
 float					{ return TK_PR_FLOAT        ; }  
 bool					{ return TK_PR_BOOL         ; }  
 char					{ return TK_PR_CHAR         ; }  
@@ -100,3 +102,45 @@ int get_line_number () {
 	return line_counter;
 }
 
+void mallocVL(){
+	yylval.valor_lexico = (struct valor_lexico*) malloc(sizeof(struct valor_lexico));
+}
+
+void line() {
+	yylval.valor_lexico->line = get_line_number();
+}
+void createReservada() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = RESERVADA;
+	yylval.valor_lexico->value.cadeia = strdup(yytext);
+}
+
+void createEspecial() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = ESPECIAL;
+	yylval.valor_lexico->value.car = yytext[0]; // ultimo char lido
+}
+
+void createComposto() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = COMPOSTO;
+	yylval.valor_lexico->value.cadeia = strdup(yytext); 
+}
+
+void createID() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = ID;
+	yylval.valor_lexico->value.cadeia = strdup(yytext);
+}
+
+void createLInt() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	char* number = strdup(yytext);
+	yylval.valor_lexico->value.car = atoi(number); // ultimo char lido
+}

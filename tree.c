@@ -1,16 +1,9 @@
 #include <stddef.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "tree.h"
 
-struct node {
-    int n;
-    struct node *firstKid;
-    struct node *siblings;
-};
-
-struct node* newNode(int data) 
-{ 
+struct node* newNode(int data) { 
  
   struct node* node = (struct node*)malloc(sizeof(struct node)); 
   node->n = data; 
@@ -21,7 +14,7 @@ struct node* newNode(int data)
 
 
 
-int freeTree(struct node* node){
+void freeTree(struct node* node){
     if(node->firstKid != NULL){
         freeTree(node->firstKid);
     }
@@ -29,7 +22,7 @@ int freeTree(struct node* node){
         freeTree(node->siblings);
         node->siblings = NULL;
     }
-    
+    removeNode(node);
 }
 
 int removeNode(struct node* node){
@@ -39,6 +32,7 @@ int removeNode(struct node* node){
     free(node);
     return 0;
 }
+
 void addSibling(struct node* node, struct node* newSibling){
     if(node->siblings == NULL){
         node->siblings = newSibling;
@@ -76,4 +70,5 @@ int main(){
     addChild(n, n2);
     addChild(n, n3);
     printTree(n);
+    return 0;
 }

@@ -1,57 +1,64 @@
 
 %{
 #include <stdio.h>
+#include "valor_lexico.h"
+#include "tree.h"
 int yylex(void);
 void yyerror (char const *s);
 extern int get_line_number();
 int erro = 0;
 %}
+%union {
+	struct node* node;
+	struct valor_lexico *valor_lexico;
+}
+
 %define parse.error verbose
-%token TK_PR_INT
-%token TK_PR_FLOAT
-%token TK_PR_BOOL
-%token TK_PR_CHAR
-%token TK_PR_STRING
-%token TK_PR_IF
-%token TK_PR_THEN
-%token TK_PR_ELSE
-%token TK_PR_WHILE
-%token TK_PR_DO
-%token TK_PR_INPUT
-%token TK_PR_OUTPUT
-%token TK_PR_RETURN
-%token TK_PR_CONST
-%token TK_PR_STATIC
-%token TK_PR_FOREACH
-%token TK_PR_FOR
-%token TK_PR_SWITCH
-%token TK_PR_CASE
-%token TK_PR_BREAK
-%token TK_PR_CONTINUE
-%token TK_PR_CLASS
-%token TK_PR_PRIVATE
-%token TK_PR_PUBLIC
-%token TK_PR_PROTECTED
-%token TK_PR_END
-%token TK_PR_DEFAULT
-%token TK_OC_LE
-%token TK_OC_GE
-%token TK_OC_EQ
-%token TK_OC_NE
-%token TK_OC_AND
-%token TK_OC_OR
-%token TK_OC_SL
-%token TK_OC_SR
-%token TK_OC_FORWARD_PIPE
-%token TK_OC_BASH_PIPE
-%token TK_LIT_INT
-%token TK_LIT_FLOAT
-%token TK_LIT_FALSE
-%token TK_LIT_TRUE
-%token TK_LIT_CHAR
-%token TK_LIT_STRING
-%token TK_IDENTIFICADOR
-%token TOKEN_ERRO
+%token <valor_lexico> TK_PR_INT
+%token <valor_lexico> TK_PR_FLOAT
+%token <valor_lexico> TK_PR_BOOL
+%token <valor_lexico> TK_PR_CHAR
+%token <valor_lexico> TK_PR_STRING
+%token <valor_lexico> TK_PR_IF
+%token <valor_lexico> TK_PR_THEN
+%token <valor_lexico>  TK_PR_ELSE
+%token <valor_lexico>  TK_PR_WHILE
+%token <valor_lexico>  TK_PR_DO
+%token <valor_lexico>  TK_PR_INPUT
+%token <valor_lexico>  TK_PR_OUTPUT
+%token <valor_lexico>  TK_PR_RETURN
+%token <valor_lexico>  TK_PR_CONST
+%token <valor_lexico>  TK_PR_STATIC
+%token <valor_lexico>  TK_PR_FOREACH
+%token <valor_lexico>  TK_PR_FOR
+%token <valor_lexico>  TK_PR_SWITCH
+%token <valor_lexico>  TK_PR_CASE
+%token <valor_lexico>  TK_PR_BREAK
+%token <valor_lexico>  TK_PR_CONTINUE
+%token <valor_lexico>  TK_PR_CLASS
+%token <valor_lexico>  TK_PR_PRIVATE
+%token <valor_lexico>  TK_PR_PUBLIC
+%token <valor_lexico>  TK_PR_PROTECTED
+%token <valor_lexico>  TK_PR_END
+%token <valor_lexico>  TK_PR_DEFAULT
+%token <valor_lexico>  TK_OC_LE
+%token <valor_lexico>  TK_OC_GE
+%token <valor_lexico>  TK_OC_EQ
+%token <valor_lexico>  TK_OC_NE
+%token <valor_lexico>  TK_OC_AND
+%token <valor_lexico>  TK_OC_OR
+%token <valor_lexico>  TK_OC_SL
+%token <valor_lexico>  TK_OC_SR
+%token <valor_lexico>  TK_OC_FORWARD_PIPE
+%token <valor_lexico>  TK_OC_BASH_PIPE
+%token <valor_lexico>  TK_LIT_INT
+%token <valor_lexico>  TK_LIT_FLOAT
+%token <valor_lexico>  TK_LIT_FALSE
+%token <valor_lexico>  TK_LIT_TRUE
+%token <valor_lexico>  TK_LIT_CHAR
+%token <valor_lexico>  TK_LIT_STRING
+%token <valor_lexico>  TK_IDENTIFICADOR
+%token <valor_lexico>  TOKEN_ERRO
 %%
 
 program:			decl_var_glob program {if(erro) YYABORT;} 
@@ -205,5 +212,5 @@ literal_expression:
 
 void yyerror (char const *s){
 	int line = get_line_number();
-    fprintf (stderr, "%s , line: %d \n", s, line);
+    fprintf (stdout, "%s , line: %d \n", s, line);
 }
