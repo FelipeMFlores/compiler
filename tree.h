@@ -1,16 +1,17 @@
 #include "valor_lexico.h"
-struct node {
+typedef struct node {
     int n;
-    struct valor_lexico *data;
+    struct lexico *data;
     struct node *firstKid;
     struct node *siblings;
-};
+} NODE;
 
 
-struct node* newNode(struct valor_lexico *data);
+NODE* newNode(valor_lexico *data);
 
-void freeTree(struct node* node);
-int removeNode(struct node* node);
-void addSibling(struct node* node, struct node* newSibling);
-void addChild(struct node* node, struct node* newChild);
-void printTree(struct node* node);
+void freeTree( NODE* node);
+int removeNode( NODE* node);
+void addSibling( NODE* node, NODE* newSibling);
+void addChild( NODE* node, NODE* newChild);
+void printTree(void *root);
+void printTree2(NODE* node);

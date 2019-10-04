@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include "tree.h"
 
-struct node* newNode(struct valor_lexico *data) { 
+NODE* newNode(valor_lexico *data) { 
  
-  struct node* node = (struct node*)malloc(sizeof(struct node)); 
+  NODE* node = (NODE*)malloc(sizeof(NODE)); 
   node->n = 0;
   node->data = data; 
   node->firstKid = NULL; 
@@ -15,7 +15,7 @@ struct node* newNode(struct valor_lexico *data) {
 
 
 
-void freeTree(struct node* node){
+void freeTree(NODE* node){
     if(node->firstKid != NULL){
         freeTree(node->firstKid);
     }
@@ -26,7 +26,7 @@ void freeTree(struct node* node){
     removeNode(node);
 }
 
-int removeNode(struct node* node){
+int removeNode(NODE* node){
     if(node->firstKid != NULL || node->siblings != NULL){
         return -1;
     }
@@ -34,14 +34,14 @@ int removeNode(struct node* node){
     return 0;
 }
 
-void addSibling(struct node* node, struct node* newSibling){
+void addSibling(NODE* node, NODE* newSibling){
     if(node->siblings == NULL){
         node->siblings = newSibling;
         return;
     }
     addSibling(node->siblings, newSibling);
 }
-void addChild(struct node* node, struct node* newChild){
+void addChild(NODE* node, NODE* newChild){
     if(node->firstKid == NULL){
         node->firstKid = newChild;
         return;
@@ -50,12 +50,17 @@ void addChild(struct node* node, struct node* newChild){
 
 }
 
-void printTree(struct node* node){
-    printf("%d\n", node->n);
+void printTree(void* root){
+    NODE* arvore = root;
+    printTree2(arvore);
+}
+
+void printTree2(NODE* node){
+        printf(" a %s\n", node->data->value);
     if(node->firstKid != NULL){
-        printTree(node->firstKid);
+        printTree2(node->firstKid);
     }
     if(node->siblings != NULL){
-        printTree(node->siblings);
-    }
+        printTree2(node->siblings);
+}
 }

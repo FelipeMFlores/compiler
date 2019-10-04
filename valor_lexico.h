@@ -21,13 +21,13 @@ union value{
 
 
 };
-struct valor_lexico {
+typedef struct lexico {
     int line;
     int type;
     int litType;
     union value value;
     
-};
+} valor_lexico;
 
 
 

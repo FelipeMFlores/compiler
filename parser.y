@@ -3,13 +3,14 @@
 #include <stdio.h>
 #include "tree.h"
 int yylex(void);
+extern void* arvore;
 void yyerror (char const *s);
 extern int get_line_number();
 int erro = 0;
 %}
 %union {
 	struct node* node;
-	struct valor_lexico *valor_lexico;
+	struct lexico *valor_lexico;
 }
 
 %define parse.error verbose
@@ -58,11 +59,18 @@ int erro = 0;
 %token <valor_lexico>  TK_LIT_STRING
 %token <valor_lexico>  TK_IDENTIFICADOR
 %token <valor_lexico>  TOKEN_ERRO
+
+%type <node> program
+%type <node> func
+%type <node> command_block
+%type <node> simple_command
+%type <node> continue
+%type <node> command_block_aux
 %%
 
-program:			decl_var_glob program {if(erro) YYABORT;} 
-					| func program { if(erro) YYABORT;} 
-					| %empty { if(erro) YYABORT;} 
+program:			decl_var_glob program {if(erro) YYABORT; } 
+					| func program { if(erro) YYABORT; $$ = $1; arvore = $$; addChild($$, $2);} 
+					| %empty { if(erro) YYABORT; $$ = NULL;} 
 					| error program {YYABORT;}
 ;
 
@@ -73,7 +81,7 @@ decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' |
 ;
 
 func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list command_block |
-					type TK_IDENTIFICADOR param_list command_block
+					type TK_IDENTIFICADOR param_list command_block {$$ = newNode($2); addChild($$, $4);}
 ;
 
 param_list:			'(' ')' |
@@ -87,10 +95,10 @@ param_list_aux:		type TK_IDENTIFICADOR ')' |
 ;
 
 command_block:		'{' '}' |
-					'{' command_block_aux
+					'{' command_block_aux {$$ = $2;}
 ;
 
-command_block_aux:	simple_command ';' '}' |
+command_block_aux:	simple_command ';' '}' {$$ = $1;} | 
 					simple_command ';' command_block_aux |
 					control_flow_command '}' |
 					control_flow_command command_block_aux
@@ -99,7 +107,7 @@ command_block_aux:	simple_command ';' '}' |
 ;
 
 simple_command:		command_block | decl_var_local | assignment | input | output |
-					func_call | shift | return | break | continue
+					func_call | shift | return | break | continue {$$ = $1;}
 ;
 
 decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR |
@@ -151,7 +159,7 @@ return:				TK_PR_RETURN expression
 break:				TK_PR_BREAK
 ;
 
-continue:			TK_PR_CONTINUE
+continue:			TK_PR_CONTINUE {$$ = newNode($1);}
 ;
 
 control_flow_command:	TK_PR_IF '(' expression ')' command_block |

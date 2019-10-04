@@ -103,7 +103,7 @@ int get_line_number () {
 }
 
 void mallocVL(){
-	yylval.valor_lexico = (struct valor_lexico*) malloc(sizeof(struct valor_lexico));
+	yylval.valor_lexico = (valor_lexico*) malloc(sizeof(valor_lexico));
 }
 
 void line() {
