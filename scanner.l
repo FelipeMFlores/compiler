@@ -81,7 +81,7 @@ default					{ createReservada(); return TK_PR_DEFAULT      ; }
 {especialChar}			{ createEspecial(); return yytext[0]			; }
 
 {litInt}				{ createLitInt(); return TK_LIT_INT			; }
-{litFloat}				{ createLitFlu(); return TK_LIT_FLOAT		; }
+{litFloat}				{ createLitFlu();  return TK_LIT_FLOAT		; }
 {litChar}				{ createLitChar(); return TK_LIT_CHAR		; }
 {litString}				{ createLitString(); return TK_LIT_STRING		; }
 
@@ -155,8 +155,7 @@ void createLitFlu(){
 	line();
 	yylval.valor_lexico->type = LITERAL;
 	yylval.valor_lexico->litType = FLOAT;
-	char* number = strdup(yytext);
-	yylval.valor_lexico->value.flutuante = atof(number); 
+	yylval.valor_lexico->value.flutuante = atof(yytext); 
 }
 
 void createLitChar(){

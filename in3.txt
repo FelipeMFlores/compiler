@@ -1,3 +1,11 @@
 string funcaum (){
+    ass = 4 + 6;
+    a = 1;
     continue;
+    break;
+}
+
+int dfooo () {
+    id << 32;
+    return 15;
 }

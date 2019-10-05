@@ -52,15 +52,34 @@ void addChild(NODE* node, NODE* newChild){
 
 void printTree(void* root){
     NODE* arvore = root;
-    printTree2(arvore);
+    printTree2(arvore, 1);
 }
 
-void printTree2(NODE* node){
-        printf(" a %s\n", node->data->value);
+void printTree2(NODE* node, int lvl){
+    for(int i = 0; i < 3*lvl; i++)
+        printf("-");
+    if(node->data->type == ESPECIAL || node->data->litType == CHAR){
+        printf(" %c\n", node->data->value);
+    }else {
+        switch (node->data->litType)
+        {
+        case NAOLIT:
+        case BOOL:
+        case STRING:
+            printf(" %s\n", node->data->value);
+            break;
+        case INT:
+            printf(" %d\n", node->data->value.inteiro);
+            break;
+        case FLOAT:
+            printf(" %f\n", node->data->value.flutuante);
+            break;
+        }
+    }
     if(node->firstKid != NULL){
-        printTree2(node->firstKid);
+        printTree2(node->firstKid, lvl+1);
     }
     if(node->siblings != NULL){
-        printTree2(node->siblings);
+        printTree2(node->siblings, lvl);
 }
 }

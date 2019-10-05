@@ -14,4 +14,4 @@ int removeNode( NODE* node);
 void addSibling( NODE* node, NODE* newSibling);
 void addChild( NODE* node, NODE* newChild);
 void printTree(void *root);
-void printTree2(NODE* node);
+void printTree2(NODE* node, int lvl);

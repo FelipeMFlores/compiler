@@ -59,6 +59,7 @@ int erro = 0;
 %token <valor_lexico>  TK_LIT_STRING
 %token <valor_lexico>  TK_IDENTIFICADOR
 %token <valor_lexico>  TOKEN_ERRO
+%token <valor_lexico> ','  ';'   ':'   '('   ')'   '['   ']'  '{'   '}'  '+'   '-'   '|'   '?'   '@' '*'   '/'   '<'   '>'   '=' '!'   '&'   '%'   '#'   '^'   '.'   '$'   '~'   '`'
 
 %type <node> program
 %type <node> func
@@ -66,10 +67,24 @@ int erro = 0;
 %type <node> simple_command
 %type <node> continue
 %type <node> command_block_aux
+%type <node> decl_var_local
+%type <node> local_var_init
+%type <node> litValue
+%type <node> assignment
+%type <node> expression
+%type <node> l0 l1 l2 l3 l4 l5 l6 l7 l8 l9 l10 l11
+%type <node> relational_operator
+%type <node> unary_operator
+%type <node> literal_expression
+%type <node> func_call
+%type <node> func_call_list
+%type <node> shift
+%type <node> return
+%type <node> break
 %%
 
-program:			decl_var_glob program {if(erro) YYABORT; } 
-					| func program { if(erro) YYABORT; $$ = $1; arvore = $$; addChild($$, $2);} 
+program:			decl_var_glob program {if(erro) YYABORT; $$ = NULL;} 
+					| func program { if(erro) YYABORT; $$ = $1; arvore = $$; addChild($$, $2);}  //uma funcao filha da outra
 					| %empty { if(erro) YYABORT; $$ = NULL;} 
 					| error program {YYABORT;}
 ;
@@ -80,7 +95,7 @@ decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' |
 					type TK_IDENTIFICADOR '[' TK_LIT_INT ']' ';'
 ;
 
-func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list command_block |
+func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list command_block {$$ = newNode($3); addChild($$, $5);} |
 					type TK_IDENTIFICADOR param_list command_block {$$ = newNode($2); addChild($$, $4);}
 ;
 
@@ -94,40 +109,57 @@ param_list_aux:		type TK_IDENTIFICADOR ')' |
 					TK_PR_CONST type TK_IDENTIFICADOR ',' param_list_aux
 ;
 
-command_block:		'{' '}' |
-					'{' command_block_aux {$$ = $2;}
+command_block:		'{' '}' {$$ = NULL;}
+					| '{' command_block_aux {$$ = $2;}
 ;
 
 command_block_aux:	simple_command ';' '}' {$$ = $1;} | 
-					simple_command ';' command_block_aux |
-					control_flow_command '}' |
+					simple_command ';' command_block_aux { if($1 != NULL){$$ = $1; addChild($$, $3);} //um simple é filho do outro
+															else $$ = $3; } // primeiro simple pode ser ignorado na arvore
+					| control_flow_command '}' |
 					control_flow_command command_block_aux
 					| error '}' {erro = 1;}
 					| error ';' command_block_aux {erro = 1;}
 ;
 
-simple_command:		command_block | decl_var_local | assignment | input | output |
-					func_call | shift | return | break | continue {$$ = $1;}
+simple_command:		command_block {$$ = NULL;}
+					| decl_var_local {$$ = $1;}
+					| assignment {$$ = $1;}
+					| input {$$ = NULL;}
+					| output {$$ = NULL;}
+					| func_call {$$ = $1;}
+					| shift {$$ = $1;}
+					| return {$$ = $1;}
+					| break {$$ = $1;}
+					| continue {$$ = $1;}
 ;
 
-decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR |
-					type TK_IDENTIFICADOR |
-					local_var_qualifier type TK_IDENTIFICADOR local_var_init |
-					type TK_IDENTIFICADOR local_var_init
+decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {$$ = NULL;}
+					| type TK_IDENTIFICADOR {$$ = NULL;}
+					| local_var_qualifier type TK_IDENTIFICADOR local_var_init {$$ = $4; addChild($$, newNode($3));} //pai é o <= 
+					| type TK_IDENTIFICADOR local_var_init {$$ = $3; addChild($$, newNode($2));}
 ;
 
 local_var_qualifier:	TK_PR_STATIC | TK_PR_CONST | TK_PR_STATIC TK_PR_CONST
 ;
 
-local_var_init:		TK_OC_LE TK_IDENTIFICADOR |
-					TK_OC_LE litValue
+local_var_init:		TK_OC_LE TK_IDENTIFICADOR {$$ = newNode($1); addChild($$, newNode($2));}
+					| TK_OC_LE litValue {$$ = newNode($1); addChild($$, $2);}
 ;
 
-litValue:			TK_LIT_INT | TK_LIT_FLOAT | TK_LIT_FALSE | TK_LIT_TRUE | TK_LIT_CHAR | TK_LIT_STRING
+litValue:			TK_LIT_INT {$$ = newNode($1);}
+					| TK_LIT_FLOAT {$$ = newNode($1);}
+					| TK_LIT_FALSE {$$ = newNode($1);}
+					| TK_LIT_TRUE {$$ = newNode($1);}
+					| TK_LIT_CHAR {$$ = newNode($1);}
+					| TK_LIT_STRING {$$ = newNode($1);}
 ;
 
-assignment:			TK_IDENTIFICADOR '=' expression |
-					TK_IDENTIFICADOR '[' expression ']' '=' expression
+assignment:			TK_IDENTIFICADOR '=' expression {$$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);} //pai é o =
+					| TK_IDENTIFICADOR '[' expression ']' '=' expression {$$ = newNode($5); 
+																			NODE* i = newNode($1);
+																			addChild(i, $3);
+																			addChild($$, i); addChild($$, $6);}
 ;
 
 input:				TK_PR_INPUT expression
@@ -139,24 +171,30 @@ output:				TK_PR_OUTPUT out_expr_list
 out_expr_list:		expression | expression ',' out_expr_list
 ;
 
-func_call:			TK_IDENTIFICADOR '(' ')' |
-					TK_IDENTIFICADOR '(' func_call_list
+func_call:			TK_IDENTIFICADOR '(' ')' {$$ = newNode($1);}
+					| TK_IDENTIFICADOR '(' func_call_list {$$ = newNode($1); addChild($$, $3);}
 ;
 
-func_call_list:		expression ')' |
-					expression ',' func_call_list
+func_call_list:		expression ')' {$$ = $1;}
+					| expression ',' func_call_list {$$ = $1; addChild($$, $3);}
 ;
 
-shift:				TK_IDENTIFICADOR TK_OC_SR expression |
-					TK_IDENTIFICADOR TK_OC_SL expression |
-					TK_IDENTIFICADOR '[' expression ']' TK_OC_SR expression |
-					TK_IDENTIFICADOR '[' expression ']' TK_OC_SL expression
+shift:				TK_IDENTIFICADOR TK_OC_SR expression {$$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);}
+					| TK_IDENTIFICADOR TK_OC_SL expression {$$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);}
+					| TK_IDENTIFICADOR '[' expression ']' TK_OC_SR expression {$$ = newNode($5); 
+																			NODE* i = newNode($1);
+																			addChild(i, $3);
+																			addChild($$, i); addChild($$, $6);}
+					| TK_IDENTIFICADOR '[' expression ']' TK_OC_SL expression {$$ = newNode($5); 
+																			NODE* i = newNode($1);
+																			addChild(i, $3);
+																			addChild($$, i); addChild($$, $6);}
 ;
 
-return:				TK_PR_RETURN expression
+return:				TK_PR_RETURN expression {$$ = newNode($1); addChild($$, $2);}
 ;
 
-break:				TK_PR_BREAK
+break:				TK_PR_BREAK {$$ = newNode($1);}
 ;
 
 continue:			TK_PR_CONTINUE {$$ = newNode($1);}
@@ -190,29 +228,73 @@ type:				TK_PR_INT | TK_PR_FLOAT | TK_PR_BOOL | TK_PR_CHAR | TK_PR_STRING
 ;
 
 
-expression:			l11 ;
-l11:				l10 '?' l10 ':' l10 | l10 ;
-l10:				l10 relational_operator l9 | l9 ;
-l9:					l9 TK_OC_OR l8 | l8 ;
-l8: 				l8 TK_OC_AND l7 | l7 ;
-l7:					l7 TK_OC_FORWARD_PIPE l6 | l7 TK_OC_BASH_PIPE l6 | l6 ;
-l6:					l6 TK_OC_SL l5 | l6 TK_OC_SR l5 | l5 ;
-l5:					l5 '+' l4 | l5 '-' l4 | l4 ;
-l4:					l4 '&' l3 | l4 '|' l3 | l3 ;
-l3:					l3 '*' l2 | l3 '/' l2 | l3 '%' l2 | l2 ;
-l2:					l2 '^' l1 | l1 ;
-l1:					unary_operator l1  | l0 ;
-l0:					literal_expression | '(' expression ')' ;
+expression:			l11 {$$ = $1;}
+;
+l11:				l10 '?' l10 ':' l10 {$$ = newNode($4); addChild($$, $1); addChild($$, $3); addChild($$, $5);}
+					| l10 {$$ = $1;}
+					;
+l10:				l10 relational_operator l9 {$$ = $2; addChild($$, $1); addChild($$, $3);}
+					| l9 {$$ = $1;}
+					;
+l9:					l9 TK_OC_OR l8 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l8  {$$ = $1;}
+					;
+l8: 				l8 TK_OC_AND l7 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l7  {$$ = $1;}
+					;
+l7:					l7 TK_OC_FORWARD_PIPE l6 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l7 TK_OC_BASH_PIPE l6 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l6  {$$ = $1;}
+					;
+l6:					l6 TK_OC_SL l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l6 TK_OC_SR l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l5  {$$ = $1;}
+					;
+l5:					l5 '+' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l5 '-' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l4  {$$ = $1;}
+					;
+l4:					l4 '&' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l4 '|' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l3  {$$ = $1;}
+					;
+l3:					l3 '*' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l3 '/' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l3 '%' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l2  {$$ = $1;}
+					;
+l2:					l2 '^' l1 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+					| l1  {$$ = $1;}
+					;
+l1:					unary_operator l1  {$$ = $1; addChild($$, $2);}
+					| l0 {$$ = $1;}
+					;
+l0:					literal_expression {$$ = $1;}
+					| '(' expression ')' {$$ = $2;}
+					;
 
-relational_operator:	TK_OC_LE | TK_OC_GE | TK_OC_EQ | TK_OC_NE | '<' | '>' ;
+relational_operator:	TK_OC_LE {$$ = newNode($1);} 
+						|	TK_OC_GE {$$ = newNode($1);} 
+						|	TK_OC_EQ {$$ = newNode($1);} 
+						|	TK_OC_NE {$$ = newNode($1);} 
+						|	'<'		 {$$ = newNode($1);} 
+						|	'>'		 {$$ = newNode($1);} 
+						;
 
-unary_operator:			'+' | '-' | '!' | '&' | '*' | '?' | '#' ;
+unary_operator:			'+'	{$$ = newNode($1);}	
+						|	'-'	{$$ = newNode($1);}	
+						|	'!'	{$$ = newNode($1);}	
+						|	'&'	{$$ = newNode($1);}	
+						|	'*'	{$$ = newNode($1);}	
+						|	'?'	{$$ = newNode($1);}	
+						|	'#' {$$ = newNode($1);}
+						;
 
 literal_expression:		
-					litValue | 
-					TK_IDENTIFICADOR | 
-					TK_IDENTIFICADOR '[' expression ']' |
-					func_call
+					litValue {$$ = $1;}  
+					| TK_IDENTIFICADOR {$$ = newNode($1);} 
+					| TK_IDENTIFICADOR '[' expression ']' {$$ = newNode($1); addChild($$, $3);} 
+					| func_call {$$ = $1;}
 ;
 
 %%
