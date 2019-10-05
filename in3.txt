@@ -1,11 +1,6 @@
-string funcaum (){
-    ass = 4 + 6;
-    a = 1;
-    continue;
-    break;
-}
-
-int dfooo () {
-    id << 32;
-    return 15;
+int f() {
+	int i <= 333;
+	for (i = 0 : i < 10 : i = i+1) {
+		continue;
+	}
 }
