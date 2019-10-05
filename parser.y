@@ -212,7 +212,7 @@ control_flow_command:
 ;
 
 for_command:		
-		TK_PR_FOR '(' for_list ':' expression ':' for_list ')' command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5); addChild($$, $7);}
+		TK_PR_FOR '(' for_list ':' expression ':' for_list ')' command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5); addChild($$, $7); addChild($$, $9);}
 ;
 
 for_list:

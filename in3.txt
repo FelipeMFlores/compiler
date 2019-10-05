@@ -1,6 +1,7 @@
 int f() {
-	int i <= 333;
-	for (i = 0 : i < 10 : i = i+1) {
-		continue;
+	for (int i <= 0 : i < 10 : i = i+1) {
+		if (true) {
+			gfoo(1, x+3, 2, 3, 4, a, "sss", aaa, er, qkw);
+		}
 	}
 }
