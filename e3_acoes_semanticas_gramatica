@@ -1,0 +1,326 @@
+program ::=
+	decl_var_glob program	|
+	func program			|
+	error program
+
+------------------------------------------------------------
+
+decl_var_glob ::=
+	TK_PR_STATIC type TK_IDENTIFICADOR ';'	|
+	type TK_IDENTIFICADOR ';'				|
+	TK_PR_STATIC type TK_IDENTIFICADOR '[' TK_LIT_INT ']' ';' |
+	type TK_IDENTIFICADOR '[' TK_LIT_INT ']' ';'
+
+------------------------------------------------------------
+
+func ::=
+	TK_PR_STATIC type TK_IDENTIFICADOR param_list command_block |
+	type TK_IDENTIFICADOR param_list command_block
+
+------------------------------------------------------------
+
+param_list ::=
+	'(' ')' |
+	'(' param_list_aux
+
+------------------------------------------------------------
+
+param_list_aux ::=
+	type TK_IDENTIFICADOR ')'	|
+	type TK_IDENTIFICADOR ',' param_list_aux |
+	TK_PR_CONST type TK_IDENTIFICADOR ')'	|
+	TK_PR_CONST type TK_IDENTIFICADOR ',' param_list_aux
+
+------------------------------------------------------------
+
+command_block ::=
+	'{' '}' |
+	'{' command_block_aux 
+
+------------------------------------------------------------
+
+command_block_aux ::=
+	simple_command ';' '}'	|
+	simple_command ';' command_block_aux |
+	control_flow_command '}'	|
+	control_flow_command command_block_aux 	|
+	error '}'	|
+	error ';' command_block_aux
+
+------------------------------------------------------------
+
+simple_command ::=
+	command_block 	|
+	decl_var_local	|
+	decl_var_local_com_init |
+	assignment		|
+	input			|
+	output			|
+	func_call		|
+	shift			|
+	return			|
+	break			|
+	continue		|
+
+------------------------------------------------------------
+
+decl_var_local ::=
+	local_var_qualifier type TK_IDENTIFICADOR	|
+	type TK_IDENTIFICADOR
+
+------------------------------------------------------------
+
+decl_var_local_com_init ::=
+	local_var_qualifier type TK_IDENTIFICADOR local_var_init	|
+	type TK_IDENTIFICADOR local_var_init
+
+------------------------------------------------------------
+
+local_var_qualifier ::=
+	TK_PR_STATIC	|
+	TK_PR_CONST		|
+	TK_PR_STATIC TK_PR_CONST
+
+------------------------------------------------------------
+
+local_var_init ::=
+	TK_OC_LE TK_IDENTIFICADOR	|
+	TK_OC_LE litValue
+
+------------------------------------------------------------
+
+litValue ::=
+	TK_LIT_INT		{$$ = newNode($1);}	|
+	TK_LIT_FLOAT	{$$ = newNode($1);} |
+	TK_LIT_FALSE	{$$ = newNode($1);} |
+	TK_LIT_TRUE		{$$ = newNode($1);} |
+	TK_LIT_CHAR		{$$ = newNode($1);} |
+	TK_LIT_STRING	{$$ = newNode($1);}
+
+------------------------------------------------------------
+
+assignment ::=
+	TK_IDENTIFICADOR '=' expression		|
+	TK_IDENTIFICADOR '[' expression ']' '=' expression
+
+------------------------------------------------------------
+
+input ::=
+	TK_PR_INPUT expression
+
+------------------------------------------------------------
+
+output ::=
+	TK_PR_OUTPUT out_expr_list
+
+------------------------------------------------------------
+
+out_expr_list ::=
+	expression	|
+	expression ',' out_expr_list
+
+------------------------------------------------------------
+
+func_call ::=
+	TK_IDENTIFICADOR '(' ')'	|
+	TK_IDENTIFICADOR '(' func_call_list
+
+------------------------------------------------------------
+
+func_call_list ::=
+	expression ')'		|
+	expression ',' func_call_list
+
+------------------------------------------------------------
+
+shift ::=				
+	TK_IDENTIFICADOR TK_OC_SR expression |
+	TK_IDENTIFICADOR TK_OC_SL expression |
+	TK_IDENTIFICADOR '[' expression ']' TK_OC_SR expression |
+	TK_IDENTIFICADOR '[' expression ']' TK_OC_SL expression
+
+
+------------------------------------------------------------
+
+return ::=
+	TK_PR_RETURN expression {$$ = newNode($1); addChild($$, $2);}
+
+------------------------------------------------------------
+
+break ::=
+	TK_PR_BREAK  {$$ = newNode($1);}
+
+------------------------------------------------------------
+
+continue ::=
+	TK_PR_CONTINUE  {$$ = newNode($1);}
+
+------------------------------------------------------------
+
+control_flow_command ::=
+	TK_PR_IF '(' expression ')' command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5);}	|
+	TK_PR_IF '(' expression ')' command_block TK_PR_ELSE command_block {$$ = newNode($6); addChild($$, $3); addChild($$, $5); addChild($$, $7);} |
+	TK_PR_WHILE '(' expression ')' TK_PR_DO command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5);} |
+	for_command {$$ = $1;}
+
+------------------------------------------------------------
+
+for_command ::=
+	TK_PR_FOR '(' for_list ':' expression ':' for_list ')' command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5); addChild($$, $7); addChild($$, $9);}
+
+------------------------------------------------------------
+
+for_list ::=
+	for_list_simple_command {$$ = $1;} |
+	for_list_simple_command ',' for_list {$$ = $1; addChild($$, $3);}
+
+------------------------------------------------------------
+
+for_list_simple_command:
+	command_block {$$ = $1;} |
+	decl_var_local_com_init {$$ = $1;} |
+	assignment {$$ = $1;} |
+	input | 	# nao gera codigo para input.
+	shift {$$ = $1;} |
+	return {$$ = $1;} |
+	break {$$ = $1;} |
+	continue {$$ = $1;}
+
+------------------------------------------------------------
+
+# gera codigo para isso (?)
+
+type ::=
+	TK_PR_INT {$$ = newNode($1);} |
+	TK_PR_FLOAT {$$ = newNode($1);} |
+	TK_PR_BOOL {$$ = newNode($1);} |
+	TK_PR_CHAR {$$ = newNode($1);} |
+	TK_PR_STRING {$$ = newNode($1);}
+
+------------------------------------------------------------
+
+expression ::=		
+	l11	{$$ = newNode($1);}
+
+------------------------------------------------------------
+
+l11:				l10 '?' l10 ':' l10 {$$ = newNode($4); addChild($$, $1); addChild($$, $3); addChild($$, $5);}
+				|	l10 {$$ = $1;} ;
+
+l10:				l10 relational_operator l9 {$$ = $2; addChild($$, $1); addChild($$, $3);}
+				|	l9 {$$ = $1;} ;
+
+
+l9:					l9 TK_OC_OR l8 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l8 {$$ = $1;} ;
+
+l8: 				l8 TK_OC_AND l7 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l7 {$$ = $1;} ;
+
+l7:					l7 TK_OC_FORWARD_PIPE l6 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);} 
+				| 	l7 TK_OC_BASH_PIPE l6 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				|	l6 {$$ = $1;} ;
+
+l6:					l6 TK_OC_SL l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l6 TK_OC_SR l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l5 {$$ = $1;} ;
+
+
+l5:					l5 '+' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l5 '-' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l4 {$$ = $1;} ;
+
+l4:					l4 '&' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				|	l4 '|' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l3 {$$ = $1;} ;
+
+
+l3:					l3 '*' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				|	l3 '/' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l3 '%' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l2 {$$ = $1;} ;
+
+l2:					l2 '^' l1 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+				| 	l1 {$$ = $1} ;
+
+l1:					unary_operator l1 {$$ = $1; addChild($$, $2);}
+				| 	l0 {$$ = $1} ;
+
+l0:					literal_expression {$$ = $1;}
+				| 	'(' expression ')' ; {$$ = $2;}
+
+------------------------------------------------------------
+
+relational_operator ::=
+	TK_OC_LE {$$ = newNode($1);} |
+	TK_OC_GE {$$ = newNode($1);} |
+	TK_OC_EQ {$$ = newNode($1);} |
+	TK_OC_NE {$$ = newNode($1);} |
+	'<'		 {$$ = newNode($1);} |
+	'>'		 {$$ = newNode($1);}
+
+------------------------------------------------------------
+
+unary_operator ::=
+	'+'	{$$ = newNode($1);}	|
+	'-'	{$$ = newNode($1);}	|
+	'!'	{$$ = newNode($1);}	|
+	'&'	{$$ = newNode($1);}	|
+	'*'	{$$ = newNode($1);}	|
+	'?'	{$$ = newNode($1);}	|
+	'#' {$$ = newNode($1);}
+ 
+------------------------------------------------------------
+
+literal_expression ::=
+	litValue  {$$ = $1;}	|
+	TK_IDENTIFICADOR {$$ = newNode($1);}|
+	TK_IDENTIFICADOR '[' expression ']' {$$ = newNode($1); addChild($$, $3);}|
+	func_call {$$ = $1;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
