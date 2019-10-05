@@ -101,9 +101,26 @@ void printTree2(NODE* node, int lvl){
 }
 }
 
+// ----------------------------------------------------------------------------------------
 
 void libera (void *arvore) {
+    libera_recursivo((NODE*)arvore);
+}
 
+void deleta_nodo(NODE* node) {
+    valor_lexico *node_data = node->data;
+    free(node_data);
+    free(node);
+}
+
+void libera_recursivo(NODE* node) {
+    if (node->firstKid) {
+        libera_recursivo(node->firstKid);
+    }
+    if (node->siblings) {
+        libera_recursivo(node->siblings);
+    }
+    deleta_nodo(node);
 }
 
 void exporta (void *arvore) {

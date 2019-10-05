@@ -18,3 +18,5 @@ void printTree(void *root);
 void printTree2(NODE* node, int lvl);
 
 void exporta_recursivo(NODE *node, FILE *csv);
+void libera_recursivo(NODE* node);
+void deleta_nodo(NODE *node);

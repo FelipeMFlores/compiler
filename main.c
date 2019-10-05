@@ -16,9 +16,11 @@ void exporta (void *arvore);
 int main (int argc, char **argv)
 {
   int ret = yyparse(); 
+
+  printTree(arvore);
+
   exporta (arvore);
   libera(arvore);
-  printTree(arvore);
   arvore = NULL;
   yylex_destroy();
   return ret;
