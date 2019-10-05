@@ -18,4 +18,9 @@ with open("e3.csv", 'r') as csv:
 			nodes.add(filho)
 			dot.node(filho)
 
+		dot.edge(pai, filho)
+
+
+dot.render(cleanup=True, format="png", view=True)
+
 
