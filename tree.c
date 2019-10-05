@@ -104,12 +104,25 @@ void printTree2(NODE* node, int lvl){
 // ----------------------------------------------------------------------------------------
 
 void libera (void *arvore) {
+    libera_mallocVLs();
     libera_recursivo((NODE*)arvore);
 }
 
+void libera_mallocVLs() {
+    valor_lexico_list *percorre = vl_list;
+    valor_lexico_list *next = vl_list->prox;
+
+    while (next != NULL) {
+        free(percorre->vl);
+        free(percorre);
+        percorre = next;
+        next = next->prox;
+    }
+    free(percorre->vl);
+    free(percorre);
+}
+
 void deleta_nodo(NODE* node) {
-    valor_lexico *node_data = node->data;
-    free(node_data);
     free(node);
 }
 

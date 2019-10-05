@@ -29,6 +29,13 @@ typedef struct lexico {
     
 } valor_lexico;
 
+typedef struct valor_lexico_list {
+	valor_lexico *vl;
+	struct valor_lexico_list *prox;
+} valor_lexico_list;
+
+
+extern valor_lexico_list *vl_list;
 
 
 void mallocVL();

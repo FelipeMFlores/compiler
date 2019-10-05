@@ -87,7 +87,7 @@ int erro = 0;
 %type <node> literal_expression
 %%
 
-program:			decl_var_glob program {if(erro) YYABORT; $$ = NULL;} 
+program:			decl_var_glob program {if(erro) YYABORT; $$ = $2;} 
 					| func program { if(erro) YYABORT; $$ = $1; arvore = $$; addChild($$, $2);}  //uma funcao filha da outra
 					| %empty { if(erro) YYABORT; $$ = NULL;} 
 					| error program {YYABORT;}

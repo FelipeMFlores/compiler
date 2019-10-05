@@ -5,6 +5,8 @@
 
 int line_counter = 1;
 
+valor_lexico_list *vl_list = NULL;
+
 %}
 
 letra [a-z]|[A-Z]|_
@@ -103,7 +105,26 @@ int get_line_number () {
 }
 
 void mallocVL(){
-	yylval.valor_lexico = (valor_lexico*) malloc(sizeof(valor_lexico));
+	valor_lexico *new_valor_lexico = (valor_lexico*) malloc(sizeof(valor_lexico));
+	yylval.valor_lexico = new_valor_lexico;
+
+	valor_lexico_list *percorre;
+
+	if (vl_list == NULL) {
+		vl_list = (valor_lexico_list*) malloc(sizeof(valor_lexico_list));
+		vl_list->vl = new_valor_lexico;
+		vl_list->prox = NULL;
+	}
+	else{
+		percorre = vl_list;
+		while (percorre->prox != NULL) {
+			percorre = percorre->prox;
+		}
+		percorre->prox = (valor_lexico_list*) malloc(sizeof(valor_lexico_list));
+		percorre->prox->vl = new_valor_lexico;
+		percorre->prox->prox = NULL;
+	}
+
 }
 
 void line() {
