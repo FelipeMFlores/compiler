@@ -69,6 +69,10 @@ void addChild(NODE* node, NODE* newChild){
 
 void printTree(void* root){
     NODE* arvore = root;
+    if (root == NULL) {
+        printf("--> printTree: Arvore vazia.\n");
+        return;
+    }
     printTree2(arvore, 1);
 }
 
@@ -104,6 +108,10 @@ void printTree2(NODE* node, int lvl){
 // ----------------------------------------------------------------------------------------
 
 void libera (void *arvore) {
+    if (arvore == NULL) {
+        printf("--> libera: Arvore vazia.\n");
+        return;
+    }
     libera_mallocVLs();
     libera_recursivo((NODE*)arvore);
 }
@@ -137,6 +145,10 @@ void libera_recursivo(NODE* node) {
 }
 
 void exporta (void *arvore) {
+    if (arvore == NULL) {
+        printf("--> exporta: Arvore vazia.\n");
+        return;
+    }
     FILE *csv = fopen("e3.csv", "w");
     exporta_recursivo((NODE*)arvore, csv);
     fclose(csv);    
