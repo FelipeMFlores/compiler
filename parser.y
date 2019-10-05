@@ -125,8 +125,8 @@ command_block:		'{' '}' {$$ = NULL;}
 command_block_aux:	simple_command ';' '}' {$$ = $1;} | 
 					simple_command ';' command_block_aux { if($1 != NULL){$$ = $1; addChild($$, $3);} //um simple é filho do outro
 															else $$ = $3; } // primeiro simple pode ser ignorado na arvore
-					| control_flow_command '}' {$$ = $1;} |
-					control_flow_command command_block_aux {$$ = $1; addChild($$, $2);}
+					| control_flow_command ';' '}' {$$ = $1;} |
+					control_flow_command ';' command_block_aux {$$ = $1; addChild($$, $3);}
 					| error '}' {erro = 1;}
 					| error ';' command_block_aux {erro = 1;}
 ;
