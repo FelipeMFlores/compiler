@@ -15,3 +15,5 @@ void addSibling( NODE* node, NODE* newSibling);
 void addChild( NODE* node, NODE* newChild);
 void printTree(void *root);
 void printTree2(NODE* node, int lvl);
+
+void exporta_recursivo(NODE *node, FILE *csv);

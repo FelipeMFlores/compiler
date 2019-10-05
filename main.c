@@ -10,14 +10,14 @@ extern int yylex_destroy(void);
 
 
 void *arvore = NULL;
-//void libera (void *arvore);
-//void exporta (void *arvore);
+void libera (void *arvore);
+void exporta (void *arvore);
 
 int main (int argc, char **argv)
 {
   int ret = yyparse(); 
-  //exporta (arvore);
-  //libera(arvore);
+  exporta (arvore);
+  libera(arvore);
   printTree(arvore);
   arvore = NULL;
   yylex_destroy();

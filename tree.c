@@ -83,3 +83,28 @@ void printTree2(NODE* node, int lvl){
         printTree2(node->siblings, lvl);
 }
 }
+
+
+void libera (void *arvore) {
+
+}
+
+void exporta (void *arvore) {
+    FILE *csv = fopen("e3.csv", "w");
+    exporta_recursivo((NODE*)arvore, csv);
+    fclose(csv);    
+}
+
+void exporta_recursivo(NODE *node, FILE *csv) {
+    if (node == NULL) {
+        return;
+    }
+    if (node->firstKid != NULL) {
+        fprintf(csv, "%p, %p\n", (void*)node, (void*)(node->firstKid));
+        exporta_recursivo(node->firstKid, csv);
+    }
+    if (node->siblings != NULL) {
+        fprintf(csv, "%p, %p\n", (void*)node, (void*)(node->siblings));
+        exporta_recursivo(node->siblings, csv);        
+    }
+}
