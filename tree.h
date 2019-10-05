@@ -7,6 +7,15 @@ typedef struct node {
     struct node *parent;
 } NODE;
 
+typedef struct nlist {
+	NODE *nodo;
+	struct nlist *prox;
+} node_list;
+
+/**
+	lista encadeada auxiliar para liberar memoria dos nodos.
+*/
+extern node_list* nodes_list;
 
 NODE* newNode(valor_lexico *data);
 
@@ -20,5 +29,6 @@ void printTree2(NODE* node, int lvl);
 void exporta_recursivo(NODE *node, FILE *csv);
 void libera_recursivo(NODE* node);
 void deleta_nodo(NODE *node);
+void libera_nodos();
 void libera_mallocVLs();
 void libera_strdups();

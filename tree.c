@@ -3,14 +3,32 @@
 #include <stdlib.h>
 #include "tree.h"
 
+node_list* nodes_list = NULL;
+
 NODE* newNode(valor_lexico *data) { 
- 
+
   NODE* node = (NODE*)malloc(sizeof(NODE)); 
   node->n = 0;
   node->data = data; 
   node->firstKid = NULL; 
   node->siblings = NULL; 
   node->parent = NULL;
+
+  node_list *percorre;
+
+  if (nodes_list == NULL) {
+    nodes_list = (node_list*)malloc(sizeof(node_list));
+    nodes_list->nodo = node;
+    nodes_list->prox = NULL;
+  }
+  else {
+    percorre = nodes_list;
+    while(percorre->prox != NULL) percorre = percorre->prox;
+    percorre->prox = (node_list*)malloc(sizeof(node_list));
+    percorre->prox->nodo = node;
+    percorre->prox->prox = NULL;
+  }
+
   return(node); 
 } ;
 
@@ -116,7 +134,21 @@ void libera (void *arvore) {
     }
     libera_strdups();
     libera_mallocVLs();
-    libera_recursivo((NODE*)arvore);
+    //libera_recursivo((NODE*)arvore);
+    libera_nodos();
+}
+
+void libera_nodos() {
+    node_list *percorre = nodes_list;
+    node_list *next = nodes_list->prox;
+    while (next != NULL) {
+        free(percorre->nodo);
+        free(percorre);
+        percorre = next;
+        next = next->prox;
+    }
+    free(percorre->nodo);
+    free(percorre);
 }
 
 void libera_strdups() {
