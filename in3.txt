@@ -1,14 +1,19 @@
 int f() {
-	if(1) {
-		break;
-	};
-	{
-		{
-			{
+	int a <= 10;
+}
 
+int g() {
+	for (int i <= 0 : i < 10 : i = i + 1) {
+		for (int j <= i : j < 10 : j = j+1) {
+			if (i == 123) {
+				if (j == 233) {
+					g(a,b,c,d,"sdks",f(x));
+				};
+			}
+			else {
+				continue;
+				break;
 			};
 		};
 	};
-
-	continue;
 }

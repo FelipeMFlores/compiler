@@ -32,9 +32,9 @@ string funcaum (){
     return exp;
     break;
     continue;
-    if ( alsssgo ) {int loc;} 
-    if (algo) {} else {}
-    for(id = id ,as = as: id: ad = as,as = aa) {}
+    if ( alsssgo ) {int loc;}; 
+    if (algo) {} else {};
+    for(id = id ,as = as: id: ad = as,as = aa) {};
 
     //expressoes
 
