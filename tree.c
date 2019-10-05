@@ -145,12 +145,13 @@ void libera_recursivo(NODE* node) {
 }
 
 void exporta (void *arvore) {
-    if (arvore == NULL) {
-        printf("--> exporta: Arvore vazia.\n");
-        return;
-    }
     FILE *csv = fopen("e3.csv", "w");
-    exporta_recursivo((NODE*)arvore, csv);
+    if (arvore == NULL) {
+        printf("--> exporta: Arvore vazia. \"e3.csv\" vazio criado.\n");
+    }
+    else {
+        exporta_recursivo((NODE*)arvore, csv);
+    }
     fclose(csv);    
 }
 
