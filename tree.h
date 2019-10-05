@@ -4,6 +4,7 @@ typedef struct node {
     struct lexico *data;
     struct node *firstKid;
     struct node *siblings;
+    struct node *parent;
 } NODE;
 
 

@@ -10,6 +10,7 @@ NODE* newNode(valor_lexico *data) {
   node->data = data; 
   node->firstKid = NULL; 
   node->siblings = NULL; 
+  node->parent = NULL;
   return(node); 
 } ;
 
@@ -37,6 +38,7 @@ int removeNode(NODE* node){
 void addSibling(NODE* node, NODE* newSibling){
     if(node->siblings == NULL){
         node->siblings = newSibling;
+        newSibling->parent = node->parent;
         return;
     }
     addSibling(node->siblings, newSibling);
@@ -44,6 +46,7 @@ void addSibling(NODE* node, NODE* newSibling){
 void addChild(NODE* node, NODE* newChild){
     if(node->firstKid == NULL){
         node->firstKid = newChild;
+        newChild->parent = node;
         return;
     }
     addSibling(node->firstKid, newChild);
