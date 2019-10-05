@@ -64,23 +64,27 @@ int erro = 0;
 %type <node> program
 %type <node> func
 %type <node> command_block
-%type <node> simple_command
-%type <node> continue
 %type <node> command_block_aux
+%type <node> simple_command
 %type <node> decl_var_local
 %type <node> local_var_init
 %type <node> litValue
 %type <node> assignment
-%type <node> expression
-%type <node> l0 l1 l2 l3 l4 l5 l6 l7 l8 l9 l10 l11
-%type <node> relational_operator
-%type <node> unary_operator
-%type <node> literal_expression
 %type <node> func_call
 %type <node> func_call_list
 %type <node> shift
 %type <node> return
 %type <node> break
+%type <node> continue
+%type <node> control_flow_command
+%type <node> for_command
+%type <node> for_list
+%type <node> for_list_simple_command
+%type <node> expression
+%type <node> l0 l1 l2 l3 l4 l5 l6 l7 l8 l9 l10 l11
+%type <node> relational_operator
+%type <node> unary_operator
+%type <node> literal_expression
 %%
 
 program:			decl_var_glob program {if(erro) YYABORT; $$ = NULL;} 
@@ -200,28 +204,31 @@ break:				TK_PR_BREAK {$$ = newNode($1);}
 continue:			TK_PR_CONTINUE {$$ = newNode($1);}
 ;
 
-control_flow_command:	TK_PR_IF '(' expression ')' command_block |
-						TK_PR_IF '(' expression ')' command_block TK_PR_ELSE command_block |
-						TK_PR_WHILE '(' expression ')' TK_PR_DO command_block |
-						for_command
+control_flow_command:
+		TK_PR_IF '(' expression ')' command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5);} |
+		TK_PR_IF '(' expression ')' command_block TK_PR_ELSE command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5); addChild($$, $7);} |
+		TK_PR_WHILE '(' expression ')' TK_PR_DO command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $6);} |
+		for_command {$$ = $1;}
 ;
 
-for_command:		TK_PR_FOR '(' for_list ':' expression ':' for_list ')' command_block
+for_command:		
+		TK_PR_FOR '(' for_list ':' expression ':' for_list ')' command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5); addChild($$, $7);}
 ;
 
-for_list:			for_list_simple_command |
-					for_list_simple_command ',' for_list
+for_list:
+		for_list_simple_command {$$ = $1;} |
+		for_list_simple_command ',' for_list {$$ = $1; addChild($$, $3);}
 ;
 
-for_list_simple_command:	
-					command_block |
-					decl_var_local |
-					assignment |
-					input |
-					shift |
-					return |
-					break |
-					continue
+for_list_simple_command:
+					command_block {$$ = $1;} |
+					decl_var_local {$$ = $1;} |
+					assignment {$$ = $1;} |
+					input {$$ = NULL;}|
+					shift {$$ = $1;} |
+					return {$$ = $1;} |
+					break {$$ = $1;} |
+					continue {$$ = $1;}
 ;
 
 type:				TK_PR_INT | TK_PR_FLOAT | TK_PR_BOOL | TK_PR_CHAR | TK_PR_STRING
