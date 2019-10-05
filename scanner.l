@@ -6,6 +6,7 @@
 int line_counter = 1;
 
 valor_lexico_list *vl_list = NULL;
+string_list *strdup_list = NULL;
 
 %}
 
@@ -104,6 +105,25 @@ int get_line_number () {
 	return line_counter;
 }
 
+void insert_in_strdup_list(char *string) {
+	string_list *percorre;
+
+	if (strdup_list == NULL) {
+		strdup_list = (string_list*)malloc(sizeof(string_list));
+		strdup_list->str = string;
+		strdup_list->prox = NULL;
+	}
+	else {
+		percorre = strdup_list;
+		while (percorre->prox != NULL) {
+			percorre = percorre->prox;
+		}
+		percorre->prox = (string_list*)malloc(sizeof(string_list));
+		percorre->prox->str = string;
+		percorre->prox->prox = NULL;
+	}
+}
+
 void mallocVL(){
 	valor_lexico *new_valor_lexico = (valor_lexico*) malloc(sizeof(valor_lexico));
 	yylval.valor_lexico = new_valor_lexico;
@@ -136,6 +156,8 @@ void createReservada() {
 	yylval.valor_lexico->type = RESERVADA;
 	yylval.valor_lexico->litType = NAOLIT;
 	yylval.valor_lexico->value.string = strdup(yytext);
+
+	insert_in_strdup_list(yylval.valor_lexico->value.string);
 }
 
 void createEspecial() {
@@ -152,6 +174,8 @@ void createComposto() {
 	yylval.valor_lexico->type = COMPOSTO;
 	yylval.valor_lexico->litType = NAOLIT;
 	yylval.valor_lexico->value.string = strdup(yytext); 
+
+	insert_in_strdup_list(yylval.valor_lexico->value.string);
 }
 
 void createID() {
@@ -160,6 +184,8 @@ void createID() {
 	yylval.valor_lexico->type = ID;
 	yylval.valor_lexico->litType = NAOLIT;
 	yylval.valor_lexico->value.string = strdup(yytext);
+
+	insert_in_strdup_list(yylval.valor_lexico->value.string);
 }
 
 void createLitInt() {
@@ -169,6 +195,8 @@ void createLitInt() {
 	yylval.valor_lexico->litType = INT;
 	char* number = strdup(yytext);
 	yylval.valor_lexico->value.inteiro = atoi(number); 
+
+	insert_in_strdup_list(number);
 }
 
 void createLitFlu(){
@@ -186,6 +214,8 @@ void createLitChar(){
 	yylval.valor_lexico->litType = CHAR;
 	char* c = strdup(yytext);
 	yylval.valor_lexico->value.car = c[1]; // sem as aspas
+
+	insert_in_strdup_list(c);
 }
 
 void createBool(){
@@ -194,6 +224,9 @@ void createBool(){
 	yylval.valor_lexico->type = LITERAL;
 	yylval.valor_lexico->litType = BOOL;
 	yylval.valor_lexico->value.boolean = strdup(yytext);
+
+
+	insert_in_strdup_list(yylval.valor_lexico->value.boolean);
 }
 
 void createLitString(){
@@ -202,6 +235,9 @@ void createLitString(){
 	yylval.valor_lexico->type = LITERAL;
 	yylval.valor_lexico->litType = STRING;
 	char* string = strdup(yytext);
+
+	insert_in_strdup_list(string);
+
 	string++; //remove first "
 	int i;
 	for(i = 0;; i++){
@@ -211,6 +247,4 @@ void createLitString(){
 		}
 	}
 	yylval.valor_lexico->value.string = string;
-	
-
 }

@@ -21,3 +21,4 @@ void exporta_recursivo(NODE *node, FILE *csv);
 void libera_recursivo(NODE* node);
 void deleta_nodo(NODE *node);
 void libera_mallocVLs();
+void libera_strdups();

@@ -112,8 +112,23 @@ void libera (void *arvore) {
         printf("--> libera: Arvore vazia.\n");
         return;
     }
+    libera_strdups();
     libera_mallocVLs();
     libera_recursivo((NODE*)arvore);
+}
+
+void libera_strdups() {
+    string_list *percorre = strdup_list;
+    string_list *next = strdup_list->prox;
+
+    while (next != NULL) {
+        free(percorre->str);
+        free(percorre);
+        percorre = next;
+        next = next->prox;
+    }
+    free(percorre->str);
+    free(percorre);
 }
 
 void libera_mallocVLs() {

@@ -34,8 +34,22 @@ typedef struct valor_lexico_list {
 	struct valor_lexico_list *prox;
 } valor_lexico_list;
 
+typedef struct strlist {
+    char *str;
+    struct strlist *prox;
+} string_list;
 
+/**
+    lista encadeada para liberar a memoria dos valor_lexico alocados
+    que nao gerarao nodos na AST.
+*/
 extern valor_lexico_list *vl_list;
+
+/**
+    lista encadeada para liberar os strdup de strings para valores lexicos cujo value e um
+    char* (boolean ou string).
+*/
+extern string_list *strdup_list;
 
 
 void mallocVL();
@@ -59,3 +73,5 @@ void createLitChar();
 void createLitString();
 
 void createBool();
+
+void insert_in_strdup_list(char *string);
