@@ -1,5 +1,9 @@
 int f() {
 	int a <= 10;
+	int a <= b;
+	while (1) do {
+		continue;
+	};
 }
 
 int g() {

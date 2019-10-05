@@ -62,7 +62,6 @@ int erro = 0;
 %token <valor_lexico> ','  ';'   ':'   '('   ')'   '['   ']'  '{'   '}'  '+'   '-'   '|'   '?'   '@' '*'   '/'   '<'   '>'   '=' '!'   '&'   '%'   '#'   '^'   '.'   '$'   '~'   '`'
 
 %type <node> program
-%type <node> program_or_empty_program
 %type <node> func
 %type <node> command_block
 %type <node> command_block_aux
@@ -87,10 +86,6 @@ int erro = 0;
 %type <node> unary_operator
 %type <node> literal_expression
 %%
-
-program_or_empty_program:
-	program |
-	%empty {$$ = NULL;}
 
 program:			decl_var_glob program {if(erro) YYABORT; $$ = $2;} 
 					| func program { if(erro) YYABORT; $$ = $1; arvore = $$; addChild($$, $2);}  //uma funcao filha da outra

@@ -16,24 +16,26 @@ NODE* newNode(valor_lexico *data) {
 
 
 
-void freeTree(NODE* node){
-    if(node->firstKid != NULL){
-        freeTree(node->firstKid);
-    }
-    if(node->siblings != NULL){
-        freeTree(node->siblings);
-        node->siblings = NULL;
-    }
-    removeNode(node);
-}
+// void freeTree(NODE* node){
+//     return;
+//     if(node->firstKid != NULL){
+//         freeTree(node->firstKid);
+//     }
+//     if(node->siblings != NULL){
+//         freeTree(node->siblings);
+//         node->siblings = NULL;
+//     }
+//     removeNode(node);
+// }
 
-int removeNode(NODE* node){
-    if(node->firstKid != NULL || node->siblings != NULL){
-        return -1;
-    }
-    free(node);
-    return 0;
-}
+// int removeNode(NODE* node){
+//     return;
+//     if(node->firstKid != NULL || node->siblings != NULL){
+//         return -1;
+//     }
+//     free(node);
+//     return 0;
+// }
 
 void addSibling(NODE* node, NODE* newSibling){
     if (newSibling == NULL) {
