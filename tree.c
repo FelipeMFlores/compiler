@@ -36,6 +36,13 @@ int removeNode(NODE* node){
 }
 
 void addSibling(NODE* node, NODE* newSibling){
+    if (newSibling == NULL) {
+        return;
+    }
+    if (node == NULL) {
+        return;
+    }
+
     if(node->siblings == NULL){
         node->siblings = newSibling;
         newSibling->parent = node->parent;
@@ -44,6 +51,13 @@ void addSibling(NODE* node, NODE* newSibling){
     addSibling(node->siblings, newSibling);
 }
 void addChild(NODE* node, NODE* newChild){
+    if (newChild == NULL) {
+        return;
+    }
+    if (node == NULL) {
+        return;
+    }
+
     if(node->firstKid == NULL){
         node->firstKid = newChild;
         newChild->parent = node;
@@ -107,7 +121,7 @@ void exporta_recursivo(NODE *node, FILE *csv) {
         exporta_recursivo(node->firstKid, csv);
     }
     if (node->siblings != NULL) {
-        fprintf(csv, "%p, %p\n", (void*)node, (void*)(node->siblings));
+        fprintf(csv, "%p, %p\n", (void*)node->parent, (void*)(node->siblings));
         exporta_recursivo(node->siblings, csv);        
     }
 }

@@ -3,8 +3,8 @@ CC = gcc
 build: scanner.l main.c parser.y
 	bison -d parser.y  -v --report-file=report.txt
 	flex scanner.l
-	gcc -c main.c lex.yy.c parser.tab.c tree.c
-	gcc -o etapa3 main.o lex.yy.o parser.tab.o tree.o -lfl   
+	gcc -c main.c lex.yy.c parser.tab.c tree.c -ggdb -Og
+	gcc -o etapa3 main.o lex.yy.o parser.tab.o tree.o -lfl -ggdb -Og   
 
 run: etapa2
 	./etapa2
