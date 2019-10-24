@@ -1,3 +1,6 @@
+#pragma once
+
+
 #include "valor_lexico.h"
 typedef struct node {
     int n;
@@ -20,6 +23,7 @@ extern node_list* nodes_list;
 NODE* newNode(valor_lexico *data);
 
 valor_lexico_list* newValorLexicoList(valor_lexico *tipo);
+
 
 void freeTree( NODE* node);
 int removeNode( NODE* node);

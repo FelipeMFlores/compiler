@@ -175,7 +175,7 @@ decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = NULL; inser
 local_var_qualifier:	TK_PR_STATIC | TK_PR_CONST | TK_PR_STATIC TK_PR_CONST
 ;
 
-local_var_init:		TK_OC_LE TK_IDENTIFICADOR {$$ = newNode($1); addChild($$, newNode($2));}
+local_var_init:		TK_OC_LE TK_IDENTIFICADOR {TCH $$ = newNode($1); addChild($$, newNode($2)); assert_var_exists(curr_hashtable, $2);}
 					| TK_OC_LE litValue {$$ = newNode($1); addChild($$, $2);}
 ;
 
@@ -187,11 +187,15 @@ litValue:			TK_LIT_INT {$$ = newNode($1);}
 					| TK_LIT_STRING {$$ = newNode($1);}
 ;
 
-assignment:			TK_IDENTIFICADOR '=' expression {$$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);} //pai é o =
-					| TK_IDENTIFICADOR '[' expression ']' '=' expression {$$ = newNode($5); 
+assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);
+														assert_var_exists(curr_hashtable, $1);
+														} //pai é o =
+					| TK_IDENTIFICADOR '[' expression ']' '=' expression {TCH $$ = newNode($5); 
 																			NODE* i = newNode($1);
 																			addChild(i, $3);
-																			addChild($$, i); addChild($$, $6);}
+																			addChild($$, i); addChild($$, $6);
+																			assert_vec_exists(curr_hashtable, $1);
+																			}
 ;
 
 input:				TK_PR_INPUT expression
@@ -203,24 +207,31 @@ output:				TK_PR_OUTPUT out_expr_list
 out_expr_list:		expression | expression ',' out_expr_list
 ;
 
-func_call:			TK_IDENTIFICADOR '(' ')' {$$ = newNode($1);}
-					| TK_IDENTIFICADOR '(' func_call_list {$$ = newNode($1); addChild($$, $3);}
+
+func_call:			TK_IDENTIFICADOR '(' ')' {TCH $$ = newNode($1); assert_func_exists(curr_hashtable, $1, NULL);}
+					| TK_IDENTIFICADOR '(' func_call_list {TCH $$ = newNode($1); addChild($$, $3); assert_func_exists(curr_hashtable, $1, $3);}
 ;
 
 func_call_list:		expression ')' {$$ = $1;}
 					| expression ',' func_call_list {$$ = $1; addChild($$, $3);}
 ;
 
-shift:				TK_IDENTIFICADOR TK_OC_SR expression {$$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);}
-					| TK_IDENTIFICADOR TK_OC_SL expression {$$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);}
-					| TK_IDENTIFICADOR '[' expression ']' TK_OC_SR expression {$$ = newNode($5); 
+shift:				TK_IDENTIFICADOR TK_OC_SR expression {TCH $$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3); 
+															assert_var_exists(curr_hashtable, $1);}
+					| TK_IDENTIFICADOR TK_OC_SL expression {TCH $$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);
+															assert_var_exists(curr_hashtable, $1);}
+					| TK_IDENTIFICADOR '[' expression ']' TK_OC_SR expression {TCH $$ = newNode($5); 
 																			NODE* i = newNode($1);
 																			addChild(i, $3);
-																			addChild($$, i); addChild($$, $6);}
-					| TK_IDENTIFICADOR '[' expression ']' TK_OC_SL expression {$$ = newNode($5); 
+																			addChild($$, i); addChild($$, $6);
+																			assert_vec_exists(curr_hashtable, $1);
+																			}
+					| TK_IDENTIFICADOR '[' expression ']' TK_OC_SL expression {TCH $$ = newNode($5); 
 																			NODE* i = newNode($1);
 																			addChild(i, $3);
-																			addChild($$, i); addChild($$, $6);}
+																			addChild($$, i); addChild($$, $6);
+																			assert_vec_exists(curr_hashtable, $1);
+																			}
 ;
 
 return:				TK_PR_RETURN expression {$$ = newNode($1); addChild($$, $2);}
@@ -325,10 +336,13 @@ unary_operator:			'+'	{$$ = newNode($1);}
 						|	'#' {$$ = newNode($1);}
 						;
 
+
 literal_expression:		
 					litValue {$$ = $1;}  
-					| TK_IDENTIFICADOR {$$ = newNode($1);} 
-					| TK_IDENTIFICADOR '[' expression ']' {$$ = newNode($1); addChild($$, $3);} 
+					| TK_IDENTIFICADOR {TCH $$ = newNode($1); 
+						assert_var_exists(curr_hashtable, $1);} 
+					| TK_IDENTIFICADOR '[' expression ']' {TCH $$ = newNode($1); addChild($$, $3);
+						assert_vec_exists(curr_hashtable, $1);} 
 					| func_call {$$ = $1;}
 ;
 
