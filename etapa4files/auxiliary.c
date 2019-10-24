@@ -6,6 +6,11 @@
 #include "auxiliary.h"
 
 void insert_var_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico *vl_identificador) {
+	if (!curr_scope) {
+		printf("exit-55\n");
+		exit(-55);
+	}
+
 	char* identificador = (char*)(vl_identificador->value.string);
 	if (key_exist(identificador, curr_scope)) {
 		// re-declaracao de variavel no mesmo escopo:

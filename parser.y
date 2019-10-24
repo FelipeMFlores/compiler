@@ -135,8 +135,11 @@ param_list_aux:		type TK_IDENTIFICADOR ')' {TCH $$ = newValorLexicoList($1); $$-
 ;
 
 command_block:		'{' '}' {$$ = NULL;}
-					| '{' command_block_aux {TCH $$ = $2; 
-						HASHTABLE *aux = create_hashtable(); aux->prev = curr_hashtable; curr_hashtable = aux;}  // cria novo escopo.
+					| '{' 
+							{TCH HASHTABLE *aux = create_hashtable(); aux->prev = curr_hashtable; curr_hashtable = aux;}  // cria novo escopo. 
+								command_block_aux 
+							{$$ = $3;} 
+						
 ;
 
 command_block_aux:	simple_command ';' '}' {TCH $$ = $1; curr_hashtable = curr_hashtable->prev; } |   // fecha escopo atual.
