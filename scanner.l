@@ -1,7 +1,12 @@
 %{
-#include "tokens.h"
+#include "parser.tab.h"
+#include <string.h>
+#include "valor_lexico.h"
 
 int line_counter = 1;
+
+valor_lexico_list *vl_list = NULL;
+string_list *strdup_list = NULL;
 
 %}
 
@@ -10,7 +15,7 @@ numero [0-9]
 id {letra}({letra}|{numero})*
 especialChar ["," ";" ":" "(" ")" \] \[ "{" "}" "+" \- "|" "?" "@" "*" "/" "<" ">" "=" "!" "&" "%" "#" "^" "." "$" "~" "`"]
 
-litInt ("+"|"-")?{numero}+
+litInt {numero}+
 
 rawFloat {litInt}("."){numero}+
 sciFloat ({litInt}|{rawFloat})("e"|"E"){litInt}
@@ -34,54 +39,54 @@ litString \"[^\"]*\"
 
 " "+					//skip whitespace
 "\t"+					//skip tabs
-int						{ return TK_PR_INT          ; }
-float					{ return TK_PR_FLOAT        ; }  
-bool					{ return TK_PR_BOOL         ; }  
-char					{ return TK_PR_CHAR         ; }  
-string					{ return TK_PR_STRING       ; }  
-if						{ return TK_PR_IF           ; }  
-then					{ return TK_PR_THEN         ; } 
-else					{ return TK_PR_ELSE         ; }  
-while					{ return TK_PR_WHILE        ; }  
-do						{ return TK_PR_DO           ; }  
-input					{ return TK_PR_INPUT        ; }  
-output					{ return TK_PR_OUTPUT       ; }  
-return					{ return TK_PR_RETURN       ; }  
-const					{ return TK_PR_CONST        ; }  
-static					{ return TK_PR_STATIC       ; }  
-foreach					{ return TK_PR_FOREACH      ; }  
-for						{ return TK_PR_FOR          ; } 
-switch					{ return TK_PR_SWITCH       ; }  
-case					{ return TK_PR_CASE         ; }  
-break					{ return TK_PR_BREAK        ; }  
-continue				{ return TK_PR_CONTINUE     ; }  
-class					{ return TK_PR_CLASS        ; }  
-private					{ return TK_PR_PRIVATE      ; }  
-public					{ return TK_PR_PUBLIC       ; }  
-protected				{ return TK_PR_PROTECTED    ; }  
+int						{ createReservada(); return TK_PR_INT          ; }
+float					{ createReservada(); return TK_PR_FLOAT        ; }  
+bool					{ createReservada(); return TK_PR_BOOL         ; }  
+char					{ createReservada(); return TK_PR_CHAR         ; }  
+string					{ createReservada(); return TK_PR_STRING       ; }  
+if						{ createReservada(); return TK_PR_IF           ; }  
+then					{ createReservada(); return TK_PR_THEN         ; } 
+else					{ createReservada(); return TK_PR_ELSE         ; }  
+while					{ createReservada(); return TK_PR_WHILE        ; }  
+do						{ createReservada(); return TK_PR_DO           ; }  
+input					{ createReservada(); return TK_PR_INPUT        ; }  
+output					{ createReservada(); return TK_PR_OUTPUT       ; }  
+return					{ createReservada(); return TK_PR_RETURN       ; }  
+const					{ createReservada(); return TK_PR_CONST        ; }  
+static					{ createReservada(); return TK_PR_STATIC       ; }  
+foreach					{ createReservada(); return TK_PR_FOREACH      ; }  
+for						{ createReservada(); return TK_PR_FOR          ; } 
+switch					{ createReservada(); return TK_PR_SWITCH       ; }  
+case					{ createReservada(); return TK_PR_CASE         ; }  
+break					{ createReservada(); return TK_PR_BREAK        ; }  
+continue				{ createReservada(); return TK_PR_CONTINUE     ; }  
+class					{ createReservada(); return TK_PR_CLASS        ; }  
+private					{ createReservada(); return TK_PR_PRIVATE      ; }  
+public					{ createReservada(); return TK_PR_PUBLIC       ; }  
+protected				{ createReservada(); return TK_PR_PROTECTED    ; }  
 
-false					{ return TK_LIT_FALSE		; }
-true 					{ return TK_LIT_TRUE        ; }
+false					{ createBool(); return TK_LIT_FALSE		; }
+true 					{ createBool(); return TK_LIT_TRUE        ; }
 
-"<="					{ return TK_OC_LE           ; }  
-">="					{ return TK_OC_GE           ; } 
-"=="					{ return TK_OC_EQ           ; }  
-"!="					{ return TK_OC_NE           ; }  
-"&&"					{ return TK_OC_AND          ; }  
-"||"					{ return TK_OC_OR           ; }  
-">>"					{ return TK_OC_SL           ; }  
-"<<"					{ return TK_OC_SR           ; }  
-"%>%"					{ return TK_OC_FORWARD_PIPE ; }  
-"%|%"					{ return TK_OC_BASH_PIPE    ; }  
-end						{ return TK_PR_END          ; } 
-default					{ return TK_PR_DEFAULT      ; }
-{id}					{ return TK_IDENTIFICADOR	; }
-{especialChar}			{ return yytext[0]			; }
+"<="					{ createComposto(); return TK_OC_LE           ; }  
+">="					{ createComposto(); return TK_OC_GE           ; } 
+"=="					{ createComposto(); return TK_OC_EQ           ; }  
+"!="					{ createComposto(); return TK_OC_NE           ; }  
+"&&"					{ createComposto(); return TK_OC_AND          ; }  
+"||"					{ createComposto(); return TK_OC_OR           ; }  
+">>"					{ createComposto(); return TK_OC_SL           ; }  
+"<<"					{ createComposto(); return TK_OC_SR           ; }  
+"%>%"					{ createComposto(); return TK_OC_FORWARD_PIPE ; }  
+"%|%"					{ createComposto(); return TK_OC_BASH_PIPE    ; }  
+end						{ createReservada(); return TK_PR_END          ; } 
+default					{ createReservada(); return TK_PR_DEFAULT      ; }
+{id}					{ createID(); 		return TK_IDENTIFICADOR	; }
+{especialChar}			{ createEspecial(); return yytext[0]			; }
 
-{litInt}				{ return TK_LIT_INT			; }
-{litFloat}				{ return TK_LIT_FLOAT		; }
-{litChar}				{ return TK_LIT_CHAR		; }
-{litString}				{ return TK_LIT_STRING		; }
+{litInt}				{ createLitInt(); return TK_LIT_INT			; }
+{litFloat}				{ createLitFlu();  return TK_LIT_FLOAT		; }
+{litChar}				{ createLitChar(); return TK_LIT_CHAR		; }
+{litString}				{ createLitString(); return TK_LIT_STRING		; }
 
 "\n"					line_counter++;
 
@@ -100,3 +105,146 @@ int get_line_number () {
 	return line_counter;
 }
 
+void insert_in_strdup_list(char *string) {
+	string_list *percorre;
+
+	if (strdup_list == NULL) {
+		strdup_list = (string_list*)malloc(sizeof(string_list));
+		strdup_list->str = string;
+		strdup_list->prox = NULL;
+	}
+	else {
+		percorre = strdup_list;
+		while (percorre->prox != NULL) {
+			percorre = percorre->prox;
+		}
+		percorre->prox = (string_list*)malloc(sizeof(string_list));
+		percorre->prox->str = string;
+		percorre->prox->prox = NULL;
+	}
+}
+
+void mallocVL(){
+	valor_lexico *new_valor_lexico = (valor_lexico*) malloc(sizeof(valor_lexico));
+	yylval.valor_lexico = new_valor_lexico;
+
+	valor_lexico_list *percorre;
+
+	if (vl_list == NULL) {
+		vl_list = (valor_lexico_list*) malloc(sizeof(valor_lexico_list));
+		vl_list->vl = new_valor_lexico;
+		vl_list->prox = NULL;
+	}
+	else{
+		percorre = vl_list;
+		while (percorre->prox != NULL) {
+			percorre = percorre->prox;
+		}
+		percorre->prox = (valor_lexico_list*) malloc(sizeof(valor_lexico_list));
+		percorre->prox->vl = new_valor_lexico;
+		percorre->prox->prox = NULL;
+	}
+
+}
+
+void line() {
+	yylval.valor_lexico->line = get_line_number();
+}
+void createReservada() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = RESERVADA;
+	yylval.valor_lexico->litType = NAOLIT;
+	yylval.valor_lexico->value.string = strdup(yytext);
+
+	insert_in_strdup_list(yylval.valor_lexico->value.string);
+}
+
+void createEspecial() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = ESPECIAL;
+	yylval.valor_lexico->litType = NAOLIT;
+	yylval.valor_lexico->value.car = yytext[0]; // ultimo char lido
+}
+
+void createComposto() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = COMPOSTO;
+	yylval.valor_lexico->litType = NAOLIT;
+	yylval.valor_lexico->value.string = strdup(yytext); 
+
+	insert_in_strdup_list(yylval.valor_lexico->value.string);
+}
+
+void createID() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = ID;
+	yylval.valor_lexico->litType = NAOLIT;
+	yylval.valor_lexico->value.string = strdup(yytext);
+
+	insert_in_strdup_list(yylval.valor_lexico->value.string);
+}
+
+void createLitInt() {
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = INT;
+	char* number = strdup(yytext);
+	yylval.valor_lexico->value.inteiro = atoi(number); 
+
+	insert_in_strdup_list(number);
+}
+
+void createLitFlu(){
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = FLOAT;
+	yylval.valor_lexico->value.flutuante = atof(yytext); 
+}
+
+void createLitChar(){
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = CHAR;
+	char* c = strdup(yytext);
+	yylval.valor_lexico->value.car = c[1]; // sem as aspas
+
+	insert_in_strdup_list(c);
+}
+
+void createBool(){
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = BOOL;
+	yylval.valor_lexico->value.boolean = strdup(yytext);
+
+
+	insert_in_strdup_list(yylval.valor_lexico->value.boolean);
+}
+
+void createLitString(){
+	mallocVL();
+	line();
+	yylval.valor_lexico->type = LITERAL;
+	yylval.valor_lexico->litType = STRING;
+	char* string = strdup(yytext);
+
+	insert_in_strdup_list(string);
+
+	string++; //remove first "
+	int i;
+	for(i = 0;; i++){
+		if(string[i] == '"'){
+			string[i] = '\0';
+			break;
+		}
+	}
+	yylval.valor_lexico->value.string = string;
+}

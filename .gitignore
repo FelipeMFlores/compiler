@@ -1,8 +1,8 @@
-# ignora arquivo c gerado pelo flex:
+*.o
+etapa4
 lex.yy.c
-
-# analisador:
-analisador
-
-# arquivo de entradas de teste 2:
-in2.txt
+parser.tab.c
+parser.tab.h
+report.txt
+test*
+e3.csv
