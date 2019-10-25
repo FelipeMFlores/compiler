@@ -363,8 +363,7 @@ void assert_compatible_type_local_var_init(HASHTABLE *curr_scope, valor_lexico *
 	assert_allowed_coercion(tipo_localvarinit, tipo_vindodahashtable, local_var_init_node->data->line);
 }
 
-
-void assert_allowed_coercion(int from, int to, int linenum) {
+int is_allowed_coercion(int from, int to) {
 	switch (from) {
 		case TIPO_INT_VEC:
 		case TIPO_INT_FUNC:
@@ -411,24 +410,42 @@ void assert_allowed_coercion(int from, int to, int linenum) {
 	}
 
 	if (from == to) {
-		return;
+		return 1;
 	}
 
 	if (from == TIPO_INT &&
 		(to == TIPO_FLOAT || to == TIPO_BOOL)
 		) {
-		return;
+		return 1;
 	}
 
 	if (from == TIPO_BOOL &&
 		(to == TIPO_FLOAT || to == TIPO_INT)
 		) {
-		return;
+		return 1;
 	}
 
 	if (from == TIPO_FLOAT &&
 		(to == TIPO_INT || to == TIPO_BOOL)
 		) {
+		return 1;
+	}
+
+	if (from == TIPO_STRING) {
+		return 0;
+	}
+
+	if (from == TIPO_CHAR) {
+		return 0;
+	}
+
+	return 0;
+}
+
+
+void assert_allowed_coercion(int from, int to, int linenum) {
+	int is_allowed = is_allowed_coercion(from, to);
+	if (is_allowed) {
 		return;
 	}
 
@@ -448,7 +465,19 @@ void assert_allowed_coercion(int from, int to, int linenum) {
 
 // --------------------------------------------------------------------------------------------------------------------------------
 
-// --> implementar a partir daqui:
+NODE *get_next_expression_in_func_call_list(NODE *expression_node) {
+	if (expression_node->firstKid == NULL) {
+		return NULL;
+	}
+	NODE *aux = expression_node->firstKid;
+	while (aux->siblings != NULL) {
+		aux = aux->siblings;
+	}
+	if (aux->is_another_argument == 0) {
+		return NULL;
+	}
+	return aux;
+}
 
 void assert_func_params(HASHTABLE_VALUE *valor, NODE *param_list, int linenum) {
 	// valor: HASHTABLE_VALUE da funcao.
@@ -457,9 +486,20 @@ void assert_func_params(HASHTABLE_VALUE *valor, NODE *param_list, int linenum) {
 	NODE *percorre_params = param_list;
 
 	// --- testes: ---
-	
+	// printf("--> parametros formais:\n");
+	// while (percorre_func != NULL) {
+	// 	printf("%d ", percorre_func->tipo);
+	// 	percorre_func = percorre_func->prox;
+	// }
+	// printf("\n--> fim parametros formais.\n");
 
-
+	// printf("--> argumentos passados:\n");
+	// while (percorre_params != NULL) {
+	// 	printf("%d ", percorre_params->inferred_type);
+	// 	percorre_params = get_next_expression_in_func_call_list(percorre_params);
+	// }
+	// printf("\n--> fim argumentos.\n");
+	// exit(-1);
 	// ------------------------------------------
 
 	int percorre_func_type;
@@ -472,12 +512,14 @@ void assert_func_params(HASHTABLE_VALUE *valor, NODE *param_list, int linenum) {
 		}
 		percorre_func_type = get_clean_type(percorre_func->tipo);
 		percorre_params_type = get_clean_type(percorre_params->inferred_type);
-		if (percorre_func_type != percorre_params_type) {
+		
+		if (is_allowed_coercion(percorre_params_type, percorre_func_type) == 0) {
 			printf("ERR_WRONG_TYPE_ARGS line: %d\n", linenum);
 			exit(ERR_WRONG_TYPE_ARGS);
 		}
+		
 		percorre_func = percorre_func->prox;
-		percorre_params = percorre_params->firstKid;
+		percorre_params = get_next_expression_in_func_call_list(percorre_params);
 	}
 
 	if (percorre_params != NULL) {

@@ -32,7 +32,7 @@ NODE* newNode(valor_lexico *data) {
 
 
   node->inferred_type = TIPO_INVALIDO;
-
+  node->is_another_argument = 0;
 
   return(node); 
 } ;

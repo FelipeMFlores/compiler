@@ -211,12 +211,14 @@ out_expr_list:		expression | expression ',' out_expr_list
 ;
 
 
-func_call:			TK_IDENTIFICADOR '(' ')' {TCH $$ = newNode($1); assert_func_exists(curr_hashtable, $1, NULL); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1);}
-					| TK_IDENTIFICADOR '(' func_call_list {TCH $$ = newNode($1); addChild($$, $3); assert_func_exists(curr_hashtable, $1, $3); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1);}
+func_call:			TK_IDENTIFICADOR '(' ')' {TCH $$ = newNode($1); assert_func_exists(curr_hashtable, $1, NULL); 
+												set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1);}
+					| TK_IDENTIFICADOR '(' func_call_list {TCH $$ = newNode($1); addChild($$, $3); assert_func_exists(curr_hashtable, $1, $3); 
+												set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1);}
 ;
 
-func_call_list:		expression ')' {$$ = $1;}
-					| expression ',' func_call_list {$$ = $1; addChild($$, $3);}
+func_call_list:		expression ')' {$$ = $1; $$->is_another_argument = 1; }
+					| expression ',' func_call_list {$$ = $1; $$->is_another_argument = 1; addChild($$, $3);}
 ;
 
 shift:				TK_IDENTIFICADOR TK_OC_SR expression {TCH $$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3); 

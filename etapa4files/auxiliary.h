@@ -24,6 +24,7 @@ void assert_compatible_type_assignment(HASHTABLE *curr_scope, valor_lexico *vl_i
 void assert_integer_expression(NODE *expression_node);
 
 // deve receber tipos do enum hashtable_value.h 
+int is_allowed_coercion(int from, int to);
 void assert_allowed_coercion(int from, int to, int linenum);
 
 void assert_int_float_or_bool(NODE *node);
@@ -40,5 +41,5 @@ void set_type_from_identifier_in_hashtable(HASHTABLE *curr_scope, NODE *res, val
 
 int get_clean_type(int tipo);
 
-
+NODE* get_next_expression_in_func_call_list(NODE *expression_node);
 

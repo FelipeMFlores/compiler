@@ -12,6 +12,9 @@ typedef struct node {
 
     int inferred_type;
 
+    // criado para conseguir fazer assert_func_params.
+    int is_another_argument;
+
 } NODE;
 
 typedef struct nlist {
