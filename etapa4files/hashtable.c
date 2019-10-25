@@ -10,6 +10,8 @@ HASHTABLE *create_hashtable() {
 	for (int i = 0; i < HASHTABLE_SIZE; i++) {
 		res->data[i] = NULL;
 	}
+	res->return_type = TIPO_INVALIDO; // setado em parser.y
+
 	return res;
 }
 

@@ -41,5 +41,15 @@ void set_type_from_identifier_in_hashtable(HASHTABLE *curr_scope, NODE *res, val
 
 int get_clean_type(int tipo);
 
+// pega tipo de valor lexico 'type' do parser.y
+int type_from_vl(valor_lexico *vl_tipo);
+
 NODE* get_next_expression_in_func_call_list(NODE *expression_node);
+
+void assert_compatible_return_type(HASHTABLE *curr_scope, NODE *expression_node, int linenum);
+
+// --------------------------------------------------------
+
+void assert_input_param_is_identifier(NODE *expression_node);
+
 

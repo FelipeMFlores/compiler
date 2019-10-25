@@ -17,6 +17,10 @@ HASHTABLE *curr_hashtable = NULL;
 // inicializa curr_hashtable se ainda nao foi inicializada.
 #define TCH if(!curr_hashtable){curr_hashtable=create_hashtable();}
 
+// identifica se o bloco de comandos a ser criado e de uma funcao:
+int commandblock_from_function = 0;
+valor_lexico *return_type = NULL;
+
 %}
 %union {
 	struct node* node;
@@ -118,9 +122,9 @@ decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH insert_var_decl(curr
 					type TK_IDENTIFICADOR '[' TK_LIT_INT ']' ';' {TCH insert_vec_decl(curr_hashtable, $1, $2); }
 ;
 
-func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list command_block {TCH $$ = newNode($3); addChild($$, $5); 
+func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list {commandblock_from_function = 1; return_type = $2;} command_block {TCH $$ = newNode($3); addChild($$, $6); 
 						insert_func_decl(curr_hashtable, $2, $3, $4);} |
-					type TK_IDENTIFICADOR param_list command_block {TCH $$ = newNode($2); addChild($$, $4); 
+					type TK_IDENTIFICADOR param_list {commandblock_from_function = 1; return_type = $1;} command_block {TCH $$ = newNode($2); addChild($$, $5); 
 						insert_func_decl(curr_hashtable, $1, $2, $3);}
 ;
 
@@ -134,9 +138,10 @@ param_list_aux:		type TK_IDENTIFICADOR ')' {TCH $$ = newValorLexicoList($1); $$-
 					TK_PR_CONST type TK_IDENTIFICADOR ',' param_list_aux {TCH $$ = newValorLexicoList($2); $$->prox = $5;}
 ;
 
-command_block:		'{' '}' {$$ = NULL;}
+command_block:		'{' '}' {$$ = NULL; commandblock_from_function = 0; }
 					| '{' 
-							{TCH HASHTABLE *aux = create_hashtable(); aux->prev = curr_hashtable; curr_hashtable = aux;}  // cria novo escopo. 
+							{TCH HASHTABLE *aux = create_hashtable(); aux->prev = curr_hashtable; curr_hashtable = aux;   // cria novo escopo.
+									if (commandblock_from_function){aux->return_type = type_from_vl(return_type);} commandblock_from_function = 0; }
 								command_block_aux 
 							{$$ = $3;} 
 						
@@ -201,7 +206,7 @@ assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); addChild($$
 																			}
 ;
 
-input:				TK_PR_INPUT expression
+input:				TK_PR_INPUT expression  {assert_input_param_is_identifier($2);}
 ;
 
 output:				TK_PR_OUTPUT out_expr_list
@@ -239,7 +244,7 @@ shift:				TK_IDENTIFICADOR TK_OC_SR expression {TCH $$ = newNode($2); addChild($
 																			}
 ;
 
-return:				TK_PR_RETURN expression {$$ = newNode($1); addChild($$, $2);}
+return:				TK_PR_RETURN expression {$$ = newNode($1); addChild($$, $2); assert_compatible_return_type(curr_hashtable, $2, 															get_line_number()); }
 ;
 
 break:				TK_PR_BREAK {$$ = newNode($1);}

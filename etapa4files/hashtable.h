@@ -7,6 +7,7 @@
 typedef struct hashtable {
 	HASHTABLE_VALUE* data[HASHTABLE_SIZE];
 	struct hashtable *prev;  // Para implementar stack de hashtables.
+	int return_type; // no caso de escopo de funcao.
 } HASHTABLE;
 
 HASHTABLE *create_hashtable();

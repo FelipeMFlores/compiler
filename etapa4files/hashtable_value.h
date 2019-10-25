@@ -25,7 +25,8 @@ enum {
 
 
 
-	TIPO_INVALIDO
+	TIPO_INVALIDO,
+
 };
 
 // Lista encadeada de argumentos de uma funcao.

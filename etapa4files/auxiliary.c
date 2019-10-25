@@ -682,6 +682,8 @@ int get_clean_type(int tipo) {
 		case TIPO_STRING_VEC:
 		case TIPO_STRING_FUNC:
 			return TIPO_STRING;
+		case TIPO_INVALIDO:
+			return TIPO_INVALIDO;
 	}
 	printf("exit-877");
 	exit(-877);
@@ -694,5 +696,55 @@ void set_type_from_identifier_in_hashtable(HASHTABLE *curr_scope, NODE *res, val
 	res->inferred_type = get_clean_type(valor->tipo);
 }
 
+int type_from_vl(valor_lexico *vl_tipo) {
+	char *tipo_escrito = vl_tipo->value.string;
+	if (strcmp(tipo_escrito, "int") == 0) {
+		return TIPO_INT;
+	}
+	else if (strcmp(tipo_escrito, "float") == 0) {
+		return TIPO_FLOAT;
+	}
+	else if (strcmp(tipo_escrito, "char") == 0) {
+		return TIPO_CHAR;
+	}
+	else if (strcmp(tipo_escrito, "bool") == 0) {
+		return TIPO_BOOL;
+	}
+	else if (strcmp(tipo_escrito, "string") == 0) {
+		return TIPO_STRING;
+	}
+	printf("exit-67\n");
+	exit(-67);
+}
+
+void assert_compatible_return_type(HASHTABLE *curr_scope, NODE *expression_node, int linenum) {
+	int expression_type = get_clean_type(expression_node->inferred_type);
+	HASHTABLE *percorre = curr_scope;
+	int tipo_funcao_na_hashtable;
+	while (percorre != NULL) {
+		tipo_funcao_na_hashtable = get_clean_type(percorre->return_type);
+		if (tipo_funcao_na_hashtable != TIPO_INVALIDO) {
+			if (!is_allowed_coercion(expression_type, tipo_funcao_na_hashtable)) {
+				printf("ERR_WRONG_PAR_RETURN Linha: %d\n", linenum);
+				exit(ERR_WRONG_PAR_RETURN);
+			}
+			else {
+				return;
+			}
+		}
+		percorre = percorre->prev;
+	}
+	printf("assert_compatible_return_type: --> return sem uma funcao para retornar.\n");
+	exit(-937);
+}
+
+void assert_input_param_is_identifier(NODE *expression_node) {
+	valor_lexico *vl = expression_node->data;
+	if (vl->type == ID) {
+		return;
+	}
+	printf("ERR_WRONG_PAR_INPUT Linha: %d\n", vl->line);
+	exit(ERR_WRONG_PAR_INPUT);
+}
 
 
