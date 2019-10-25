@@ -279,7 +279,7 @@ void assert_func_exists(HASHTABLE *curr_scope, valor_lexico *vl_identificador, N
 		valor = get_value_in_current_or_outer_scope(identificador, curr_scope);
 		if (is_func(valor->tipo)) {
 			// identificador existe e eh funcao: verifica se lista de parametros bate:
-			assert_func_params(valor, param_list);
+			assert_func_params(valor, param_list, vl_identificador->line);
 			return;
 		}
 		else if (is_var(valor->tipo)) {  // tentando usar variavel como funcao:
@@ -297,11 +297,6 @@ void assert_func_exists(HASHTABLE *curr_scope, valor_lexico *vl_identificador, N
 		exit(ERR_UNDECLARED);	
 	}
 }
-
-void assert_func_params(HASHTABLE_VALUE *valor, NODE *param_list) {
-	// eu acho que isso so vai dar para fazer depois do typeinfer.
-}
-
 
 // ------------------------------------------------------------------------------------------------------
 
@@ -368,13 +363,6 @@ void assert_compatible_type_local_var_init(HASHTABLE *curr_scope, valor_lexico *
 	assert_allowed_coercion(tipo_localvarinit, tipo_vindodahashtable, local_var_init_node->data->line);
 }
 
-void assert_compatible_type_assignment(HASHTABLE *curr_scope, valor_lexico *vl_identificador, NODE *expression_node) {
-
-}
-
-void assert_integer_expression(NODE *expression_node) {
-
-}
 
 void assert_allowed_coercion(int from, int to, int linenum) {
 	switch (from) {
@@ -457,4 +445,212 @@ void assert_allowed_coercion(int from, int to, int linenum) {
 	printf("ERR_WRONG_TYPE in line %d\n", linenum);
 	exit(ERR_WRONG_TYPE);
 }
+
+// --------------------------------------------------------------------------------------------------------------------------------
+
+// --> implementar a partir daqui:
+
+void assert_func_params(HASHTABLE_VALUE *valor, NODE *param_list, int linenum) {
+	// valor: HASHTABLE_VALUE da funcao.
+	// param_list: func_call_list vindo do parser.y (os que passou na chamada).
+	FUNC_ARG_LIST *percorre_func = valor->func_arg_list;
+	NODE *percorre_params = param_list;
+
+	// --- testes: ---
+	
+
+
+	// ------------------------------------------
+
+	int percorre_func_type;
+	int percorre_params_type;
+
+	while (percorre_func != NULL) {
+		if (percorre_params == NULL) {
+			printf("ERR_MISSING_ARGS line: %d\n", linenum);
+			exit(ERR_MISSING_ARGS);			
+		}
+		percorre_func_type = get_clean_type(percorre_func->tipo);
+		percorre_params_type = get_clean_type(percorre_params->inferred_type);
+		if (percorre_func_type != percorre_params_type) {
+			printf("ERR_WRONG_TYPE_ARGS line: %d\n", linenum);
+			exit(ERR_WRONG_TYPE_ARGS);
+		}
+		percorre_func = percorre_func->prox;
+		percorre_params = percorre_params->firstKid;
+	}
+
+	if (percorre_params != NULL) {
+		printf("ERR_EXCESS_ARGS line: %d\n", linenum);
+		exit(ERR_EXCESS_ARGS);
+	}
+
+}
+
+
+void assert_compatible_type_assignment(HASHTABLE *curr_scope, valor_lexico *vl_identificador, NODE *expression_node) {
+	char* identificador = (char*)(vl_identificador->value.string);
+	HASHTABLE_VALUE *valor = get_value_in_current_or_outer_scope(identificador, curr_scope);
+	assert_allowed_coercion(expression_node->inferred_type, valor->tipo, vl_identificador->line);
+}
+
+void assert_integer_expression(NODE *expression_node) {
+	switch(expression_node->inferred_type) {
+		case TIPO_INT:
+		case TIPO_INT_VEC:
+		case TIPO_INT_FUNC:
+			return;
+	}
+	printf("ERR_WRONG_TYPE: indice do vetor nao eh inteiro. %d\n", expression_node->data->line);
+	exit(ERR_WRONG_TYPE);
+}
+
+void assert_int_float_or_bool(NODE *node) {
+	switch(node->inferred_type) {
+		case TIPO_INT:
+		case TIPO_INT_VEC:
+		case TIPO_INT_FUNC:
+		case TIPO_FLOAT:
+		case TIPO_FLOAT_VEC:
+		case TIPO_FLOAT_FUNC:
+		case TIPO_BOOL:
+		case TIPO_BOOL_VEC:
+		case TIPO_BOOL_FUNC:
+			return;
+	}
+	printf("ERR_WRONG_TYPE: tipo nao eh int, float nem bool. %d\n", node->data->line);
+	exit(ERR_WRONG_TYPE);	
+}
+
+void infer_type_binop(NODE *result, NODE *op1, NODE *op2) {
+	int tipo_result;
+	int tipo_op1 = get_clean_type(op1->inferred_type);
+	int tipo_op2 = get_clean_type(op2->inferred_type);
+
+	if (tipo_op1 == TIPO_INT && tipo_op2 == TIPO_INT) {
+		tipo_result = TIPO_INT;
+	}
+	else if (tipo_op1 == TIPO_FLOAT && tipo_op2 == TIPO_FLOAT) {
+		tipo_result = TIPO_FLOAT;
+	}
+	else if (tipo_op1 == TIPO_BOOL && tipo_op2 == TIPO_BOOL) {
+		tipo_result = TIPO_BOOL;
+	}
+	else if (
+		(tipo_op1 == TIPO_INT && tipo_op2 == TIPO_FLOAT) ||
+		(tipo_op1 == TIPO_FLOAT && tipo_op2 == TIPO_INT)
+		) {
+		tipo_result = TIPO_FLOAT;		
+	}
+	else if (
+		(tipo_op1 == TIPO_INT && tipo_op2 == TIPO_BOOL) ||
+		(tipo_op1 == TIPO_BOOL && tipo_op2 == TIPO_INT)
+		) {
+		tipo_result = TIPO_INT;		
+	}
+	else if (
+		(tipo_op1 == TIPO_BOOL && tipo_op2 == TIPO_FLOAT) ||
+		(tipo_op1 == TIPO_FLOAT && tipo_op2 == TIPO_BOOL)
+		) {
+		tipo_result = TIPO_FLOAT;		
+	}
+
+	result->inferred_type = tipo_result;
+}
+
+void set_type(NODE *node, int type) {
+	node->inferred_type = type;
+}
+
+void copy_type(NODE *from, NODE *to) {
+	to->inferred_type = from->inferred_type;
+}
+
+void set_type_by_vl(NODE *res, valor_lexico *vl_tipo) {
+	int tipo_do_vl;
+	char *tipo_escrito = vl_tipo->value.string;
+
+
+	if (vl_tipo->type == RESERVADA) {
+		if (strcmp(tipo_escrito, "int") == 0) {
+			tipo_do_vl = TIPO_INT;
+		}
+		else if (strcmp(tipo_escrito, "float") == 0) {
+			tipo_do_vl = TIPO_FLOAT;		
+		}
+		else if (strcmp(tipo_escrito, "char") == 0) {
+			tipo_do_vl = TIPO_CHAR;
+		}
+		else if (strcmp(tipo_escrito, "bool") == 0) {
+			tipo_do_vl = TIPO_BOOL;
+		}
+		else if (strcmp(tipo_escrito, "string") == 0) {
+			tipo_do_vl = TIPO_STRING;		
+		}
+	}
+	else if (vl_tipo->type == LITERAL) {
+		switch(vl_tipo->litType) {
+			case INT:
+				tipo_do_vl = TIPO_INT;
+				break;
+			case FLOAT:
+				tipo_do_vl = TIPO_FLOAT;
+				break;
+			case CHAR:
+				tipo_do_vl = TIPO_CHAR;
+				break;
+			case BOOL:
+				tipo_do_vl = TIPO_BOOL;
+				break;
+			case STRING:
+				tipo_do_vl = TIPO_STRING;
+				break;
+		}
+	}
+	else {
+		printf("**(%d\n", vl_tipo->type);
+
+
+		printf("exit-23\n");
+		exit(-23);
+	}
+
+	res->inferred_type = tipo_do_vl;
+}
+
+int get_clean_type(int tipo) {
+	switch(tipo) {
+		case TIPO_INT:
+		case TIPO_INT_VEC:
+		case TIPO_INT_FUNC:
+			return TIPO_INT;
+		case TIPO_FLOAT:
+		case TIPO_FLOAT_VEC:
+		case TIPO_FLOAT_FUNC:
+			return TIPO_FLOAT;
+		case TIPO_CHAR:
+		case TIPO_CHAR_VEC:
+		case TIPO_CHAR_FUNC:
+			return TIPO_CHAR;
+		case TIPO_BOOL:
+		case TIPO_BOOL_VEC:
+		case TIPO_BOOL_FUNC:
+			return TIPO_BOOL;
+		case TIPO_STRING:
+		case TIPO_STRING_VEC:
+		case TIPO_STRING_FUNC:
+			return TIPO_STRING;
+	}
+	printf("exit-877");
+	exit(-877);
+	return 0;
+}
+
+void set_type_from_identifier_in_hashtable(HASHTABLE *curr_scope, NODE *res, valor_lexico *vl_identificador) {
+	char* identificador = (char*)(vl_identificador->value.string);
+	HASHTABLE_VALUE *valor = get_value_in_current_or_outer_scope(identificador, curr_scope);
+	res->inferred_type = get_clean_type(valor->tipo);
+}
+
+
 

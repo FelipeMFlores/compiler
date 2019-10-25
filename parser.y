@@ -211,8 +211,8 @@ out_expr_list:		expression | expression ',' out_expr_list
 ;
 
 
-func_call:			TK_IDENTIFICADOR '(' ')' {TCH $$ = newNode($1); assert_func_exists(curr_hashtable, $1, NULL);}
-					| TK_IDENTIFICADOR '(' func_call_list {TCH $$ = newNode($1); addChild($$, $3); assert_func_exists(curr_hashtable, $1, $3);}
+func_call:			TK_IDENTIFICADOR '(' ')' {TCH $$ = newNode($1); assert_func_exists(curr_hashtable, $1, NULL); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1);}
+					| TK_IDENTIFICADOR '(' func_call_list {TCH $$ = newNode($1); addChild($$, $3); assert_func_exists(curr_hashtable, $1, $3); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1);}
 ;
 
 func_call_list:		expression ')' {$$ = $1;}
@@ -279,45 +279,81 @@ type:				TK_PR_INT | TK_PR_FLOAT | TK_PR_BOOL | TK_PR_CHAR | TK_PR_STRING
 
 expression:			l11 {$$ = $1;}
 ;
-l11:				l10 '?' l10 ':' l10 {$$ = newNode($4); addChild($$, $1); addChild($$, $3); addChild($$, $5);}
+l11:				l10 '?' l10 ':' l10 {$$ = newNode($4); addChild($$, $1); addChild($$, $3); addChild($$, $5);
+											assert_int_float_or_bool($1); infer_type_binop($$, $3, $5); }
 					| l10 {$$ = $1;}
-					;
-l10:				l10 relational_operator l9 {$$ = $2; addChild($$, $1); addChild($$, $3);}
+;
+l10:				l10 relational_operator l9 {$$ = $2; addChild($$, $1); addChild($$, $3);
+											assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+											set_type($$, TIPO_BOOL); }
 					| l9 {$$ = $1;}
-					;
-l9:					l9 TK_OC_OR l8 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+;
+l9:					l9 TK_OC_OR l8 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+											assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+											set_type($$, TIPO_BOOL); }
 					| l8  {$$ = $1;}
-					;
-l8: 				l8 TK_OC_AND l7 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+;
+l8: 				l8 TK_OC_AND l7 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+											assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+											set_type($$, TIPO_BOOL); }
 					| l7  {$$ = $1;}
-					;
-l7:					l7 TK_OC_FORWARD_PIPE l6 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
-					| l7 TK_OC_BASH_PIPE l6 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+;
+l7:					l7 TK_OC_FORWARD_PIPE l6 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+											assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+											set_type($$, TIPO_INT); }
+					| l7 TK_OC_BASH_PIPE l6 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+											assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+											set_type($$, TIPO_INT); }
 					| l6  {$$ = $1;}
-					;
-l6:					l6 TK_OC_SL l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
-					| l6 TK_OC_SR l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+;
+l6:					l6 TK_OC_SL l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+									assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+									set_type($$, TIPO_INT);}
+					| l6 TK_OC_SR l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+									assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+									set_type($$, TIPO_INT);}
 					| l5  {$$ = $1;}
-					;
-l5:					l5 '+' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
-					| l5 '-' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+;
+l5:					l5 '+' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+								infer_type_binop($$, $1, $3);}
+					| l5 '-' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+								infer_type_binop($$, $1, $3);}
 					| l4  {$$ = $1;}
-					;
-l4:					l4 '&' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
-					| l4 '|' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+;
+l4:					l4 '&' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+								infer_type_binop($$, $1, $3);}
+					| l4 '|' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+								infer_type_binop($$, $1, $3);}
 					| l3  {$$ = $1;}
-					;
-l3:					l3 '*' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
-					| l3 '/' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
-					| l3 '%' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+;
+l3:					l3 '*' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+								infer_type_binop($$, $1, $3);}
+
+					| l3 '/' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+								infer_type_binop($$, $1, $3);}
+
+					| l3 '%' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+								infer_type_binop($$, $1, $3);}
+
 					| l2  {$$ = $1;}
-					;
-l2:					l2 '^' l1 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);}
+;
+l2:					l2 '^' l1 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
+								infer_type_binop($$, $1, $3);}
+
 					| l1  {$$ = $1;}
-					;
-l1:					unary_operator l1  {$$ = $1; addChild($$, $2);}
+;
+l1:					unary_operator l1  {$$ = $1; addChild($$, $2);
+								copy_type($2, $$);}
 					| l0 {$$ = $1;}
-					;
+;
 l0:					literal_expression {$$ = $1;}
 					| '(' expression ')' {$$ = $2;}
 					;
@@ -341,12 +377,12 @@ unary_operator:			'+'	{$$ = newNode($1);}
 
 
 literal_expression:		
-					litValue {$$ = $1;}  
+					litValue {$$ = $1; set_type_by_vl($$, ($1)->data);}  
 					| TK_IDENTIFICADOR {TCH $$ = newNode($1); 
-						assert_var_exists(curr_hashtable, $1);} 
+						assert_var_exists(curr_hashtable, $1); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1); } 
 					| TK_IDENTIFICADOR '[' expression ']' {TCH $$ = newNode($1); addChild($$, $3);
-						assert_vec_exists(curr_hashtable, $1);} 
-					| func_call {$$ = $1;}
+						assert_vec_exists(curr_hashtable, $1); assert_integer_expression($3); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1); } 
+					| func_call {$$ = $1; copy_type($1, $$);}
 ;
 
 %%
