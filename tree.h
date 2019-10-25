@@ -8,6 +8,10 @@ typedef struct node {
     struct node *firstKid;
     struct node *siblings;
     struct node *parent;
+
+
+    int inferred_type;
+
 } NODE;
 
 typedef struct nlist {

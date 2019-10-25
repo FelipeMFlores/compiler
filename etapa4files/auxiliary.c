@@ -305,3 +305,156 @@ void assert_func_params(HASHTABLE_VALUE *valor, NODE *param_list) {
 
 // ------------------------------------------------------------------------------------------------------
 
+
+void assert_compatible_type_local_var_init(HASHTABLE *curr_scope, valor_lexico *vl_tipo, NODE *local_var_init_node) {
+	valor_lexico *obter_pre_tipo = local_var_init_node->firstKid->data;
+	int pre_tipo_localvarinit = obter_pre_tipo->type;
+
+	int tipo_vindodahashtable;
+
+	// ------------------------------------------
+	char *tipo_escrito = vl_tipo->value.string;
+	if (strcmp(tipo_escrito, "int") == 0) {
+		tipo_vindodahashtable = TIPO_INT;
+	}
+	else if (strcmp(tipo_escrito, "float") == 0) {
+		tipo_vindodahashtable = TIPO_FLOAT;
+	}
+	else if (strcmp(tipo_escrito, "char") == 0) {
+		tipo_vindodahashtable = TIPO_CHAR;
+	}
+	else if (strcmp(tipo_escrito, "bool") == 0) {
+		tipo_vindodahashtable = TIPO_BOOL;
+	}
+	else if (strcmp(tipo_escrito, "string") == 0) {
+		tipo_vindodahashtable = TIPO_STRING;
+	}
+	// ------------------------------------------
+
+	int tipo_localvarinit;
+
+	HASHTABLE_VALUE *caso_precise;
+	if (pre_tipo_localvarinit == ID) {  // int x <= y
+		caso_precise = get_value_in_current_or_outer_scope(obter_pre_tipo->value.string, curr_scope);
+		tipo_localvarinit = caso_precise->tipo;
+	}
+	else if (pre_tipo_localvarinit == LITERAL) {  // int x <= 10
+		switch (obter_pre_tipo->litType) {
+			case INT:
+				tipo_localvarinit = TIPO_INT;
+				break;
+			case FLOAT:
+				tipo_localvarinit = TIPO_FLOAT;
+				break;
+			case CHAR:
+				tipo_localvarinit = TIPO_CHAR;
+				break;
+			case BOOL:
+				tipo_localvarinit = TIPO_BOOL;
+				break;
+			case STRING:
+				tipo_localvarinit = TIPO_STRING;
+				break;
+		}
+	}
+
+	// ------
+	// verifica se tipo_vindodahashtable eh igual a tipo_localvarinit, ou se tipo_localvarinit pode ser
+	// coergido para tipo_vindodahashtable.
+	if (tipo_localvarinit == tipo_vindodahashtable) {
+		return;
+	}
+
+	assert_allowed_coercion(tipo_localvarinit, tipo_vindodahashtable, local_var_init_node->data->line);
+}
+
+void assert_compatible_type_assignment(HASHTABLE *curr_scope, valor_lexico *vl_identificador, NODE *expression_node) {
+
+}
+
+void assert_integer_expression(NODE *expression_node) {
+
+}
+
+void assert_allowed_coercion(int from, int to, int linenum) {
+	switch (from) {
+		case TIPO_INT_VEC:
+		case TIPO_INT_FUNC:
+			from = TIPO_INT;
+			break;
+		case TIPO_FLOAT_VEC:
+		case TIPO_FLOAT_FUNC:
+			from = TIPO_FLOAT;
+			break;
+		case TIPO_CHAR_VEC:
+		case TIPO_CHAR_FUNC:
+			from = TIPO_CHAR;
+			break;
+		case TIPO_BOOL_VEC:
+		case TIPO_BOOL_FUNC:
+			from = TIPO_BOOL;
+			break;
+		case TIPO_STRING_VEC:
+		case TIPO_STRING_FUNC:
+			from = TIPO_STRING;
+			break;
+	}	
+	switch (to) {
+		case TIPO_INT_VEC:
+		case TIPO_INT_FUNC:
+			to = TIPO_INT;
+			break;
+		case TIPO_FLOAT_VEC:
+		case TIPO_FLOAT_FUNC:
+			to = TIPO_FLOAT;
+			break;
+		case TIPO_CHAR_VEC:
+		case TIPO_CHAR_FUNC:
+			to = TIPO_CHAR;
+			break;
+		case TIPO_BOOL_VEC:
+		case TIPO_BOOL_FUNC:
+			to = TIPO_BOOL;
+			break;
+		case TIPO_STRING_VEC:
+		case TIPO_STRING_FUNC:
+			to = TIPO_STRING;
+			break;
+	}
+
+	if (from == to) {
+		return;
+	}
+
+	if (from == TIPO_INT &&
+		(to == TIPO_FLOAT || to == TIPO_BOOL)
+		) {
+		return;
+	}
+
+	if (from == TIPO_BOOL &&
+		(to == TIPO_FLOAT || to == TIPO_INT)
+		) {
+		return;
+	}
+
+	if (from == TIPO_FLOAT &&
+		(to == TIPO_INT || to == TIPO_BOOL)
+		) {
+		return;
+	}
+
+	if (from == TIPO_STRING) {
+		printf("ERR_STRING_TO_X in line %d\n", linenum);
+		exit(ERR_STRING_TO_X);
+	}
+
+	if (from == TIPO_CHAR) {
+		printf("ERR_CHAR_TO_X in line %d\n", linenum);
+		exit(ERR_CHAR_TO_X);
+	}
+
+	printf("ERR_WRONG_TYPE in line %d\n", linenum);
+	exit(ERR_WRONG_TYPE);
+}
+

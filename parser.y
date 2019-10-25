@@ -166,9 +166,9 @@ simple_command:		command_block {$$ = NULL;}
 decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $2, $3); }
 					| type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $1, $2); }
 					| local_var_qualifier type TK_IDENTIFICADOR local_var_init {TCH $$ = $4; addChild($$, newNode($3)); //pai é o <= 
-									insert_var_decl(curr_hashtable, $2, $3); }
+									insert_var_decl(curr_hashtable, $2, $3); assert_compatible_type_local_var_init(curr_hashtable, $2, $4); }
 					| type TK_IDENTIFICADOR local_var_init {TCH $$ = $3; addChild($$, newNode($2));
-									insert_var_decl(curr_hashtable, $1, $2); }
+									insert_var_decl(curr_hashtable, $1, $2); assert_compatible_type_local_var_init(curr_hashtable, $1, $3); }
 
 ;
 
@@ -189,12 +189,15 @@ litValue:			TK_LIT_INT {$$ = newNode($1);}
 
 assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);
 														assert_var_exists(curr_hashtable, $1);
+														assert_compatible_type_assignment(curr_hashtable, $1, $3);
 														} //pai é o =
 					| TK_IDENTIFICADOR '[' expression ']' '=' expression {TCH $$ = newNode($5); 
 																			NODE* i = newNode($1);
 																			addChild(i, $3);
 																			addChild($$, i); addChild($$, $6);
 																			assert_vec_exists(curr_hashtable, $1);
+																			assert_integer_expression($3);
+																			assert_compatible_type_assignment(curr_hashtable, $1, $6);
 																			}
 ;
 

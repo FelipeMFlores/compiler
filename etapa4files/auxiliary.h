@@ -17,3 +17,13 @@ void assert_func_exists(HASHTABLE *curr_scope, valor_lexico *vl_identificador, N
 
 void assert_func_params(HASHTABLE_VALUE *valor, NODE *param_list);
 
+// --------------------------------------------------------
+
+void assert_compatible_type_local_var_init(HASHTABLE *curr_scope, valor_lexico *vl_tipo, NODE *local_var_init_node);
+void assert_compatible_type_assignment(HASHTABLE *curr_scope, valor_lexico *vl_identificador, NODE *expression_node);
+void assert_integer_expression(NODE *expression_node);
+
+// deve receber tipos do enum hashtable_value.h 
+void assert_allowed_coercion(int from, int to, int linenum);
+
+

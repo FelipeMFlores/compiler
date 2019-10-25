@@ -1,6 +1,7 @@
 #pragma once
 
-// tipos apenas para hashtable_value.
+// tipos para hashtable_value.
+// tambem tipos inferidos do node
 enum {
 	// daqui ate TIPO_STRING, tambem e usado por FUNC_ARG_LIST.
 	TIPO_INT = 30,	
@@ -20,7 +21,11 @@ enum {
 	TIPO_FLOAT_FUNC,
 	TIPO_CHAR_FUNC,
 	TIPO_BOOL_FUNC,
-	TIPO_STRING_FUNC
+	TIPO_STRING_FUNC,
+
+
+
+	TIPO_INVALIDO
 };
 
 // Lista encadeada de argumentos de uma funcao.

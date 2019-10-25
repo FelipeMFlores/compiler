@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tree.h"
+#include "etapa4files/hashtable_value.h"
 
 node_list* nodes_list = NULL;
 
@@ -28,6 +29,10 @@ NODE* newNode(valor_lexico *data) {
     percorre->prox->nodo = node;
     percorre->prox->prox = NULL;
   }
+
+
+  node->inferred_type = TIPO_INVALIDO;
+
 
   return(node); 
 } ;
