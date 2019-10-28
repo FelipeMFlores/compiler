@@ -36,6 +36,7 @@ int key_exist(char *str, HASHTABLE *hashtable) {
 		if (strcmp(percorre->key, str) == 0) {  // strings iguais.
 			return 1;
 		}
+		percorre = percorre->prox;
 	}
 	return 0;
 }
