@@ -21,6 +21,7 @@ int is_func(int tipo) {
 
 void insert_var_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico *vl_identificador) {
 	if (!curr_scope) {
+		printf("exit-55\n");
 		exit(-55);
 	}
 
@@ -71,6 +72,7 @@ void insert_var_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico 
 
 void insert_vec_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico *vl_identificador) {
 	if (!curr_scope) {
+		printf("exit-54\n");
 		exit(-54);
 	}
 
@@ -118,12 +120,14 @@ void insert_vec_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico 
 	// insere na tabela hash:
 	insert_in_hashtable(identificador, new_hashtable_val, curr_scope);
 	if (!curr_scope) {
+		printf("exit-137\n");
 		exit(-137);
 	}
 }
 
 void insert_func_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico *vl_identificador, valor_lexico_list *param_list) {
 	if (!curr_scope) {
+		printf("exit-53\n");
 		exit(-53);
 	}
 

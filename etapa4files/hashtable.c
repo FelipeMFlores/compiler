@@ -46,11 +46,13 @@ HASHTABLE_VALUE *get_value(char *str, HASHTABLE *hashtable) {
 	int hash = compute_hash(str);
 	HASHTABLE_VALUE *percorre = hashtable->data[hash];
 	if (percorre == NULL) {
+		printf("exit-99\n");
 		exit(-99);
 	}
 	while (strcmp(str, percorre->key)) {
 		percorre = percorre->prox;
 		if (percorre == NULL) {
+			printf("exit-98\n");
 			exit(-98);
 		}
 	}
@@ -60,6 +62,7 @@ HASHTABLE_VALUE *get_value(char *str, HASHTABLE *hashtable) {
 void insert_in_hashtable(char *str, HASHTABLE_VALUE *value, HASHTABLE *hashtable) {
 	// nao tentar inserir chave que ja existe.
 	if (key_exist(str, hashtable)) {
+		printf("exit-97\n");
 		exit(-97);
 	}
 
@@ -97,6 +100,7 @@ HASHTABLE_VALUE *get_value_in_current_or_outer_scope(char *str, HASHTABLE *hasht
 	// nao chamar get_value_in_current_or_outer_scope em hashtable que nao tem o valor nem
 	// nela nem em hashtables mais em baixo na pilha (outer scopes).
 	if (!key_exist_in_current_or_outer_scope) {
+		printf("exit-96");
 		exit(-96);
 	}
 
@@ -108,6 +112,7 @@ HASHTABLE_VALUE *get_value_in_current_or_outer_scope(char *str, HASHTABLE *hasht
 		percorre = percorre->prev;
 	}
 
+	printf("exit-95\n");
 	exit(-95);
 	return NULL;  // nunca executado.
 }
