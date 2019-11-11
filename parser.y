@@ -118,8 +118,12 @@ program:			decl_var_glob program {if(erro) YYABORT; $$ = $2;}
 
 decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH insert_var_decl(curr_hashtable, $2, $3); } |
 					type TK_IDENTIFICADOR ';' {TCH insert_var_decl(curr_hashtable, $1, $2); } |
-					TK_PR_STATIC type TK_IDENTIFICADOR '[' TK_LIT_INT ']' ';' {TCH insert_vec_decl(curr_hashtable, $2, $3); } |
-					type TK_IDENTIFICADOR '[' TK_LIT_INT ']' ';' {TCH insert_vec_decl(curr_hashtable, $1, $2); }
+					TK_PR_STATIC type TK_IDENTIFICADOR vector ';' {TCH insert_vec_decl(curr_hashtable, $2, $3); } |
+					type TK_IDENTIFICADOR vector';' {TCH insert_vec_decl(curr_hashtable, $1, $2); }
+;
+
+vector: '[' TK_LIT_INT ']' vector 
+		| '[' TK_LIT_INT ']'
 ;
 
 func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list {commandblock_from_function = 1; return_type = $2;} command_block {TCH $$ = newNode($3); addChild($$, $6); 
@@ -196,14 +200,17 @@ assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); addChild($$
 														assert_var_exists(curr_hashtable, $1);
 														assert_compatible_type_assignment(curr_hashtable, $1, $3);
 														} //pai é o =
-					| TK_IDENTIFICADOR '[' expression ']' '=' expression {TCH $$ = newNode($5); 
+					| TK_IDENTIFICADOR assignment_vector '=' expression {TCH $$ = newNode($3); 
 																			NODE* i = newNode($1);
-																			addChild(i, $3);
-																			addChild($$, i); addChild($$, $6);
+																			addChild(i, $2);
+																			addChild($$, i); addChild($$, $4);
 																			assert_vec_exists(curr_hashtable, $1);
-																			assert_integer_expression($3);
-																			assert_compatible_type_assignment(curr_hashtable, $1, $6);
+																			assert_compatible_type_assignment(curr_hashtable, $1, $4);
 																			}
+;
+
+assignment_vector: '[' expression ']' assignment_vector {$$ = $2; addChild($$, $4); assert_integer_expression($2);}
+					'[' expression ']' {$$ = $2; assert_integer_expression($2);}
 ;
 
 input:				TK_PR_INPUT expression  {assert_input_param_is_identifier($2);}
@@ -387,9 +394,13 @@ literal_expression:
 					litValue {$$ = $1; set_type_by_vl($$, ($1)->data);}  
 					| TK_IDENTIFICADOR {TCH $$ = newNode($1); 
 						assert_var_exists(curr_hashtable, $1); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1); } 
-					| TK_IDENTIFICADOR '[' expression ']' {TCH $$ = newNode($1); addChild($$, $3);
-						assert_vec_exists(curr_hashtable, $1); assert_integer_expression($3); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1); } 
+					| TK_IDENTIFICADOR expression_vector {TCH $$ = newNode($1); addChild($$, $2);
+						assert_vec_exists(curr_hashtable, $1);  set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1); } 
 					| func_call {$$ = $1; copy_type($1, $$);}
+;
+
+expression_vector:  '[' expression ']' expression_vector {$$ = $2; addChild($$, $4); assert_integer_expression($2);}
+					'[' expression ']' {$$ = $2; assert_integer_expression($2);}
 ;
 
 %%
