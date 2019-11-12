@@ -101,6 +101,8 @@ valor_lexico *return_type = NULL;
 %type <node> relational_operator
 %type <node> unary_operator
 %type <node> literal_expression
+%type <node> assignment_vector
+%type <node> expression_vector
 
 %type <valor_lexico> type
 
