@@ -212,7 +212,7 @@ assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); addChild($$
 ;
 
 assignment_vector: '[' expression ']' assignment_vector {$$ = $2; addChild($$, $4); assert_integer_expression($2);}
-					'[' expression ']' {$$ = $2; assert_integer_expression($2);}
+					| '[' expression ']' {$$ = $2; assert_integer_expression($2);}
 ;
 
 input:				TK_PR_INPUT expression  {assert_input_param_is_identifier($2);}
@@ -402,7 +402,7 @@ literal_expression:
 ;
 
 expression_vector:  '[' expression ']' expression_vector {$$ = $2; addChild($$, $4); assert_integer_expression($2);}
-					'[' expression ']' {$$ = $2; assert_integer_expression($2);}
+					| '[' expression ']' {$$ = $2; assert_integer_expression($2);}
 ;
 
 %%
