@@ -21,8 +21,8 @@ void free_iloc(ILOC* iloc);
 // doubly linked list. always use the tail of the list, to save time
 typedef struct node_list {
     ILOC* iloc;
-    ILOC* prev;
-    ILOC* next;
+    struct node_list *prev;
+    struct node_list *next;
 } NODE_LIST;
 
 NODE_LIST* new_empty_node_list();
