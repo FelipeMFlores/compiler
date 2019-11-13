@@ -1,3 +1,4 @@
+#include "../tree.h"
 #include "codeGenerator.h"
 
 
@@ -87,4 +88,16 @@ char* generate_register(){
     char* new_register = malloc(MAX_SIZE); 
     snprintf(new_register, MAX_SIZE, "r%d", register_number++);
     return new_register;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+void generate_code(void *arvore_void) {
+    NODE *arvore = (NODE*)arvore_void;
+    printf("generate_code: %d\n", arvore->inferred_type);
+}
+
+void output_code(void *arvore_void) {
+    NODE *arvore = (NODE*)arvore_void;
+    printf("generate_code: %d\n", arvore->inferred_type);
 }

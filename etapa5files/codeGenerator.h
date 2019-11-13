@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -39,3 +41,6 @@ void free_entire_list_prev(NODE_LIST* node);
 char* generate_label();
 char* generate_register();
 
+void generate_code(void *arvore);
+
+void output_code(void *arvore);

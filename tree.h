@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include <stdio.h>
 #include "valor_lexico.h"
 typedef struct node {
     int n;
