@@ -43,6 +43,16 @@ NODE_LIST* add_iloc(NODE_LIST* list_tail, ILOC* iloc){
     return new_node;
 }
 
+void concat_lists(NODE_LIST* list_tail1, NODE_LIST* list_tail2){
+    if(list_tail1 == NULL || list_tail2 == NULL) return;
+    NODE_LIST* second_list_first = list_tail2;
+    while(second_list_first->prev != NULL){
+        second_list_first = second_list_first->prev;
+    }
+    list_tail1->next = second_list_first;
+    second_list_first->prev = list_tail1;
+}
+
 void free_node_list(NODE_LIST* node){
     if(node == NULL) return;
 
@@ -93,10 +103,36 @@ char* generate_register(){
 // -----------------------------------------------------------------------------------------------
 
 void generate_code(void *arvore_void) {
+    if(arvore_void == NULL) return;
     NODE *arvore = (NODE*)arvore_void;
     printf("generate_code: %d\n", arvore->inferred_type);
+
+    //not sure if sibling or childrens first
+    generate_code(arvore->siblings);
+    generate_code(arvore->firstKid);
+
+    // TODO: add a attribute on the tree that represents the tyoe of code to be generated,
+    // example: assigment, expression, add, div, ...
+    // switch pra cada tipo, cada um vai ter uma função generate
+    // alugumas pode ser abstraidas: todas as binops vao ser iguais, soh vao mudar a operacao
+    //switch (arvore-> ){
+    //case ADD
+        generate_binop(arvore, "add");
+    //    break;
+    //}
 }
 
+void generate_binop(NODE *arvore, char* op){
+    if(arvore == NULL) return;
+    arvore->temp = generate_register();
+    //at this point, both childrens already are generated
+    // op  e1.temp, e2.temp => e.temp
+    ILOC* newiloc = new_iloc(op, arvore->firstKid->temp, arvore->firstKid->siblings->temp, arvore->temp);
+    concat_lists(arvore->firstKid->code, arvore->firstKid->siblings->code);
+
+    //add to e.code
+    arvore->code = add_iloc(arvore->firstKid->siblings->code, new_iloc);
+}
 void output_code(void *arvore_void) {
     NODE *arvore = (NODE*)arvore_void;
     printf("generate_code: %d\n", arvore->inferred_type);

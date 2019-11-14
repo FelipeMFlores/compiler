@@ -8,7 +8,8 @@ typedef struct node {
     struct node *firstKid;
     struct node *siblings;
     struct node *parent;
-
+    //char* temp
+    //NODE_LIST* code
 
     int inferred_type;
 
