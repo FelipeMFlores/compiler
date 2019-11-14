@@ -106,6 +106,7 @@ valor_lexico *return_type = NULL;
 %type <node> expression_vector
 
 %type <node> decl_var_glob
+%type <node> vector
 
 %type <valor_lexico> type
 
@@ -115,7 +116,7 @@ valor_lexico *return_type = NULL;
 
 %%
 
-program:			decl_var_glob program {if(erro) YYABORT; $$ = $2;} 
+program:			decl_var_glob program {if(erro) YYABORT; $$ = $2; addChild($$, $1); }  // vars globais filhas da raiz.
 					| func program { if(erro) YYABORT; $$ = $1; arvore = $$; addChild($$, $2);}  //uma funcao filha da outra
 					| %empty { if(erro) YYABORT; $$ = NULL;} 
 					| error program {YYABORT;}
@@ -127,8 +128,8 @@ decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH; $$ = newNode($3); s
 					type TK_IDENTIFICADOR vector';' {TCH $$ = newNode($2); setCode($$, GVD); set_type_by_vl($$, $1); addChild($$, $3); insert_vec_decl(curr_hashtable, $1, $2); }
 ;
 
-vector: '[' TK_LIT_INT ']' vector {TCH $$ = newNode($2); addChild($$, $4); }
-		| '[' TK_LIT_INT ']' {TCH $$ = newNode($2);}
+vector: '[' TK_LIT_INT ']' vector {TCH $$ = newNode($2); setCode($$, VECIDX); addChild($$, $4); }
+		| '[' TK_LIT_INT ']' {TCH $$ = newNode($2); setCode($$, VECIDX); }
 ;
 
 func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list {commandblock_from_function = 1; return_type = $2;} command_block {TCH $$ = newNode($3); addChild($$, $6); 

@@ -18,10 +18,10 @@ int main (int argc, char **argv)
   exporta (arvore);
 
   // gera codigo:
-  generate_code(arvore);
+  //generate_code(arvore);
 
   // codigo saida:
-  output_code(arvore);
+  //output_code(arvore);
 
   libera(arvore);
   arvore = NULL;
