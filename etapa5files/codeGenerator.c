@@ -1,4 +1,3 @@
-#include "../tree.h"
 #include "codeGenerator.h"
 
 
@@ -124,10 +123,10 @@ void generate_code(void *arvore_void) {
 
 void generate_binop(NODE *arvore, char* op){
     if(arvore == NULL) return;
-    arvore->temp = generate_register();
+    //arvore->temp = generate_register();
     //at this point, both childrens already are generated
     // op  e1.temp, e2.temp => e.temp
-    ILOC* newiloc = new_iloc(op, arvore->firstKid->temp, arvore->firstKid->siblings->temp, arvore->temp);
+    //ILOC* newiloc = new_iloc(op, arvore->firstKid->temp, arvore->firstKid->siblings->temp, arvore->temp);
     concat_lists(arvore->firstKid->code, arvore->firstKid->siblings->code);
 
     //add to e.code
@@ -136,4 +135,9 @@ void generate_binop(NODE *arvore, char* op){
 void output_code(void *arvore_void) {
     NODE *arvore = (NODE*)arvore_void;
     printf("generate_code: %d\n", arvore->inferred_type);
+}
+
+
+void setCode(NODE *node, int code) {
+    node->code = code;
 }

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "tree.h"
 #include "etapa4files/hashtable_value.h"
+#include "etapa5files/node_code.h"
 
 node_list* nodes_list = NULL;
 
@@ -14,6 +15,8 @@ NODE* newNode(valor_lexico *data) {
   node->firstKid = NULL; 
   node->siblings = NULL; 
   node->parent = NULL;
+
+  node->code = INVALID_CODE;
 
   node_list *percorre;
 

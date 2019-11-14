@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "../tree.h"
 
 #define MAX_SIZE 5 //1 char + 1 int
 
@@ -45,3 +46,9 @@ char* generate_register();
 void generate_code(void *arvore);
 void generate_binop(NODE *arvore, char* op);
 void output_code(void *arvore);
+
+// -------------------------------------------------------------------------------------
+
+void setCode(NODE *node, int code);
+
+

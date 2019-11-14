@@ -16,6 +16,9 @@ typedef struct node {
     // criado para conseguir fazer assert_func_params.
     int is_another_argument;
 
+    // codigo do nodo para geração de código:
+    int code;
+
 } NODE;
 
 typedef struct nlist {

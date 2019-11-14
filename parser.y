@@ -1,9 +1,10 @@
 
 %{
 #include <stdio.h>
-#include "tree.h"
 #include "etapa4files/hashtable.h"
 #include "etapa4files/auxiliary.h"
+#include "etapa5files/node_code.h"
+#include "etapa5files/codeGenerator.h"
 
 int yylex(void);
 extern void* arvore;
@@ -104,6 +105,8 @@ valor_lexico *return_type = NULL;
 %type <node> assignment_vector
 %type <node> expression_vector
 
+%type <node> decl_var_glob
+
 %type <valor_lexico> type
 
 
@@ -118,14 +121,14 @@ program:			decl_var_glob program {if(erro) YYABORT; $$ = $2;}
 					| error program {YYABORT;}
 ;
 
-decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH insert_var_decl(curr_hashtable, $2, $3); } |
-					type TK_IDENTIFICADOR ';' {TCH insert_var_decl(curr_hashtable, $1, $2); } |
-					TK_PR_STATIC type TK_IDENTIFICADOR vector ';' {TCH insert_vec_decl(curr_hashtable, $2, $3); } |
-					type TK_IDENTIFICADOR vector';' {TCH insert_vec_decl(curr_hashtable, $1, $2); }
+decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH; $$ = newNode($3); setCode($$, GVD); set_type_by_vl($$, $2); insert_var_decl(curr_hashtable, $2, $3); } |
+					type TK_IDENTIFICADOR ';' {TCH; $$ = newNode($2); setCode($$, GVD); set_type_by_vl($$, $1); insert_var_decl(curr_hashtable, $1, $2); } |
+					TK_PR_STATIC type TK_IDENTIFICADOR vector ';' {TCH $$ = newNode($3); setCode($$, GVD); set_type_by_vl($$, $2); addChild($$, $4); insert_vec_decl(curr_hashtable, $2, $3); } |
+					type TK_IDENTIFICADOR vector';' {TCH $$ = newNode($2); setCode($$, GVD); set_type_by_vl($$, $1); addChild($$, $3); insert_vec_decl(curr_hashtable, $1, $2); }
 ;
 
-vector: '[' TK_LIT_INT ']' vector 
-		| '[' TK_LIT_INT ']'
+vector: '[' TK_LIT_INT ']' vector {TCH $$ = newNode($2); addChild($$, $4); }
+		| '[' TK_LIT_INT ']' {TCH $$ = newNode($2);}
 ;
 
 func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list {commandblock_from_function = 1; return_type = $2;} command_block {TCH $$ = newNode($3); addChild($$, $6); 
