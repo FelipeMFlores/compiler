@@ -14,7 +14,7 @@ void free_iloc(ILOC* iloc);
 NODE_LIST* new_empty_node_list();
 // add iloc to next
 NODE_LIST* add_iloc(NODE_LIST* list_tail, ILOC* iloc);
-void concat_lists(NODE_LIST* list_tail1, NODE_LIST* list_tail2);
+NODE_LIST* concat_lists(NODE_LIST* list_tail1, NODE_LIST* list_tail2);
 NODE_LIST* remove_node_list(NODE_LIST* node);
 // free node and iloc
 void free_node_list(NODE_LIST* node);
@@ -33,6 +33,7 @@ void generate_code_rec(NODE* arvore);
 void generate_default(NODE *arvore);
 void generate_binop(NODE *arvore, char* op);
 void output_code(void *arvore);
+void print_code(NODE* arvore);
 
 // -------------------------------------------------------------------------------------
 

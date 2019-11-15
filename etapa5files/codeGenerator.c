@@ -47,14 +47,17 @@ NODE_LIST* add_iloc(NODE_LIST* list_tail, ILOC* iloc){
     return new_node;
 }
 
-void concat_lists(NODE_LIST* list_tail1, NODE_LIST* list_tail2){
-    if(list_tail1 == NULL || list_tail2 == NULL) return;
+NODE_LIST* concat_lists(NODE_LIST* list_tail1, NODE_LIST* list_tail2){
+    if(list_tail1 == NULL) return list_tail2;
+	if(list_tail2 == NULL) return list_tail1;
     NODE_LIST* second_list_first = list_tail2;
     while(second_list_first->prev != NULL){
         second_list_first = second_list_first->prev;
     }
     list_tail1->next = second_list_first;
     second_list_first->prev = list_tail1;
+
+	return list_tail2;
 }
 
 void free_node_list(NODE_LIST* node){
@@ -132,7 +135,7 @@ void generate_code(void *arvore_void) {
     global_scope = main_scope->prev;
 
 	generate_code_rec(arvore);
-
+	print_code(arvore);
 
 }
 
@@ -162,37 +165,43 @@ void generate_binop(NODE *arvore, char* op){
     //at this point, both childrens already are generated
     // op  e1.temp, e2.temp => e.temp
     ILOC* newiloc = new_iloc(op, arvore->firstKid->temp, arvore->firstKid->siblings->temp, arvore->temp);
-	arvore->code_list = arvore->firstKid->code_list;
-    concat_lists(arvore->code_list, arvore->firstKid->siblings->code_list);
+	arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
 
     //add to e.code
-    arvore->code_list = add_iloc(arvore->firstKid->siblings->code_list, newiloc);
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
 }
 
 // joga pra cima o codigo
 void generate_default(NODE *arvore) {
 	if(arvore == NULL || arvore->firstKid == NULL) return;
-
-	arvore->code_list =  arvore->firstKid->code_list;
-	NODE* kid = arvore->firstKid->siblings;
+	NODE* kid = arvore->firstKid;
 	while(kid != NULL) {
-		concat_lists(arvore->code_list, kid->code_list);
+		arvore->code_list = concat_lists(arvore->code_list, kid->code_list);
 		kid = kid->siblings;
 	}
 }
 
-// //for testing
-// void print_code(NODE* arvore) {
-// 	if(arvore == NULL) return;
-// 	NODE_LIST* code = arvore->code_list;
-// 	if(code == NULL){
-// 		printf("Codigo Vazio\n");
-// 		return
-// 	}
-// 	while(code != NULL){
-
-// 	}
-// }
+//for testing
+void print_code(NODE* arvore) {
+	if(arvore == NULL) {
+		printf("Arvore Vazia\n");
+		return;
+	}
+	NODE_LIST* code = arvore->code_list;
+	if(code == NULL){
+		printf("Codigo Vazio\n");
+		return;
+	}
+	while(code != NULL){
+		ILOC* iloc = code->iloc;
+		if(iloc == NULL){
+			printf("iloc vazia\n");
+			continue;
+		} 
+		printf("%s %s %s %s \n", iloc->operation, iloc->arg1, iloc->arg2, iloc->arg3);
+		code = code->next;
+	}
+}
 
 void output_code(void *arvore_void) {
     NODE *arvore = (NODE*)arvore_void;
