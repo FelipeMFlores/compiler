@@ -154,6 +154,15 @@ void generate_code_rec(NODE* arvore) {
     case ADD:
         generate_binop(arvore, "add");
        break;
+    case SUB:
+        generate_binop(arvore, "sub");
+        break;
+    case MULT:
+        generate_binop(arvore, "mult");
+        break;
+    case DIV:
+        generate_binop(arvore, "div");
+        break;
     case LITVAL:
         generate_lit_val(arvore);
 	default:
