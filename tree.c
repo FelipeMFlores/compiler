@@ -4,6 +4,7 @@
 #include "tree.h"
 #include "etapa4files/hashtable_value.h"
 #include "etapa5files/node_code.h"
+#include "etapa5files/codeGenerator.h"
 
 node_list* nodes_list = NULL;
 

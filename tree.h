@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include "valor_lexico.h"
-#include "etapa5files/codeGenerator.h"
+#include "etapa5files/e5structs.h"
 typedef struct node {
     int n;
     struct lexico *data;
