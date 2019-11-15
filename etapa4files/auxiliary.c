@@ -19,7 +19,7 @@ int is_func(int tipo) {
 
 // ------------------------------------------------------------------------------------------------------
 
-void insert_var_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico *vl_identificador) {
+void insert_var_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico *vl_identificador, int local_var) {
 	if (!curr_scope) {
 		printf("exit-55\n");
 		exit(-55);
@@ -35,6 +35,7 @@ void insert_var_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico 
 	new_hashtable_val->desloc = -1;
 	new_hashtable_val->linha = vl_identificador->line;
 	new_hashtable_val->natureza = NATUREZA_IDENTIFICADOR;
+	new_hashtable_val->local_var = local_var;
 
 	char *tipo_escrito = vl_tipo->value.string;
 	if (strcmp(tipo_escrito, "int") == 0) {

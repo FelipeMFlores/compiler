@@ -43,6 +43,7 @@ typedef struct hashtablevalue {
 	int tamanho;  // tamanho derivado do tipo.
 	FUNC_ARG_LIST *func_arg_list;
 
+	int local_var; // booleano indicando se a variavel representada e local a main.
 
 	int desloc; // deslocamento para geracao de codigo.
 

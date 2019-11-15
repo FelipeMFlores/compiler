@@ -125,8 +125,8 @@ program:			decl_var_glob program {if(erro) YYABORT; $$ = $2; }
 					| error program {YYABORT;}
 ;
 
-decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH; insert_var_decl(curr_hashtable, $2, $3); setAddress(curr_hashtable, $3, next_global_address); next_global_address += INTSIZE;} |
-					type TK_IDENTIFICADOR ';' {TCH; insert_var_decl(curr_hashtable, $1, $2); setAddress(curr_hashtable, $2, next_global_address); next_global_address += INTSIZE; } |
+decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH; insert_var_decl(curr_hashtable, $2, $3, (curr_hashtable == main_scope)); setAddress(curr_hashtable, $3, next_global_address); next_global_address += INTSIZE;} |
+					type TK_IDENTIFICADOR ';' {TCH; insert_var_decl(curr_hashtable, $1, $2, (curr_hashtable == main_scope)); setAddress(curr_hashtable, $2, next_global_address); next_global_address += INTSIZE; } |
 					TK_PR_STATIC type TK_IDENTIFICADOR {TCH insert_vec_decl(curr_hashtable, $2, $3); setAddress(curr_hashtable, $3, next_global_address); } vector ';' |
 					type TK_IDENTIFICADOR {TCH insert_vec_decl(curr_hashtable, $1, $2); setAddress(curr_hashtable, $2, next_global_address); } vector';' 
 ;
@@ -181,17 +181,17 @@ simple_command:		command_block {$$ = NULL;}
 					| continue {$$ = $1;}
 ;
 
-decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $2, $3); setAddress(curr_hashtable, $3, next_local_address); next_local_address += INTSIZE; }
-					| type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $1, $2); setAddress(curr_hashtable, $2, next_local_address); next_local_address += INTSIZE; }
+decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $2, $3, (curr_hashtable == main_scope)); setAddress(curr_hashtable, $3, next_local_address); next_local_address += INTSIZE; }
+					| type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $1, $2, (curr_hashtable == main_scope)); setAddress(curr_hashtable, $2, next_local_address); next_local_address += INTSIZE; }
 					| local_var_qualifier type TK_IDENTIFICADOR local_var_init {TCH $$ = $4; addChild($$, newNode($3)); //pai é o <= 
 									setCode($$, LVDI); set_type_by_vl($$, $2); 
-									insert_var_decl(curr_hashtable, $2, $3); 
+									insert_var_decl(curr_hashtable, $2, $3, (curr_hashtable == main_scope)); 
 									setAddress(curr_hashtable, $3, next_local_address);
 									next_local_address += INTSIZE;
 									assert_compatible_type_local_var_init(curr_hashtable, $2, $4); }
 					| type TK_IDENTIFICADOR local_var_init {TCH $$ = $3; addChild($$, newNode($2));
 									setCode($$, LVDI); set_type_by_vl($$, $1);
-									insert_var_decl(curr_hashtable, $1, $2); 
+									insert_var_decl(curr_hashtable, $1, $2, (curr_hashtable == main_scope)); 
 									setAddress(curr_hashtable, $2, next_local_address);
 									next_local_address += INTSIZE;									
 									assert_compatible_type_local_var_init(curr_hashtable, $1, $3); }
