@@ -32,6 +32,8 @@ void generate_code(void *arvore_void);
 void generate_code_rec(NODE* arvore);
 void generate_default(NODE *arvore);
 void generate_binop(NODE *arvore, char* op);
+void generate_lit_val(NODE *arvore);
+
 void output_code(void *arvore);
 void print_code(NODE* arvore);
 

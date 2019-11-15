@@ -18,7 +18,7 @@ enum {
 	// operadores:
 	OR,
 	AND, 
-	ADD, 
+	ADD, // OK
 	SUB, 
 	MULT,
 	DIV, 
@@ -32,7 +32,7 @@ enum {
 	GREAT, // >
 
 	// expressoes literais:
-	LITVAL,
+	LITVAL,  // OK
 	IDENT,
 	EXPVEC,  // acesso a elemento de vetor como literal expression. index pode ser expressao inteira. -> Usado no acesso a vetor!
 	EXPVEC_IDX_2 // '[index]' para arrays multidimensionais. -> Usado no acesso a vetor!

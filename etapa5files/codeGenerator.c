@@ -143,8 +143,8 @@ void generate_code_rec(NODE* arvore) {
 	if(arvore == NULL) return;
 
     //not sure if sibling or childrens first
-    generate_code_rec(arvore->siblings);
     generate_code_rec(arvore->firstKid);
+    generate_code_rec(arvore->siblings);
 
     //TODO: add a attribute on the tree that represents the tyoe of code to be generated,
     //example: assigment, expression, add, div, ...
@@ -154,6 +154,8 @@ void generate_code_rec(NODE* arvore) {
     case ADD:
         generate_binop(arvore, "add");
        break;
+    case LITVAL:
+        generate_lit_val(arvore);
 	default:
 		generate_default(arvore);
 	}
@@ -168,6 +170,18 @@ void generate_binop(NODE *arvore, char* op){
 	arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
 
     //add to e.code
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
+}
+
+void generate_lit_val(NODE *arvore) {
+    if (arvore == NULL) return;
+    arvore->temp = generate_register();
+    int i, j = arvore->data->value.inteiro;
+    arvore->data->value.string = malloc(30);
+    for (i = 0; i < 30; i++) arvore->data->value.string[i] = '\0';
+    sprintf(arvore->data->value.string, "%d", j);
+    ILOC *newiloc = new_iloc("loadI", arvore->data->value.string, arvore->temp, NULL);
+    //printf("$$$$%s**\n", arvore->data->value.string);
     arvore->code_list = add_iloc(arvore->code_list, newiloc);
 }
 
@@ -198,7 +212,28 @@ void print_code(NODE* arvore) {
 			printf("iloc vazia\n");
 			continue;
 		} 
-		printf("%s %s %s %s \n", iloc->operation, iloc->arg1, iloc->arg2, iloc->arg3);
+
+        printf("%s", iloc->operation);
+        if (iloc->arg1) {
+            printf(" %s", iloc->arg1);
+
+            if (iloc->arg2) {
+                if (iloc->arg3) {
+                    printf(", %s => %s\n", iloc->arg2, iloc->arg3);
+                }
+                else {
+                    printf(" => %s\n", iloc->arg2);
+                }
+            }
+            else {
+                printf("\n");
+            }
+
+        }
+        else {
+            printf("\n");
+        }
+		//printf("%s %s %s %s \n", iloc->operation, iloc->arg1, iloc->arg2, iloc->arg3);
 		code = code->prev;
 	}
 }
