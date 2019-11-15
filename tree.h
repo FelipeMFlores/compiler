@@ -2,14 +2,15 @@
 
 #include <stdio.h>
 #include "valor_lexico.h"
+#include "etapa5files/e5structs.h"
 typedef struct node {
     int n;
     struct lexico *data;
     struct node *firstKid;
     struct node *siblings;
     struct node *parent;
-    //char* temp
-    //NODE_LIST* code
+    char* temp;
+    NODE_LIST* code_list;
 
     int inferred_type;
 
