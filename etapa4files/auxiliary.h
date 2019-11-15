@@ -3,6 +3,8 @@
 #include "hashtable.h"
 #include "../tree.h"
 
+#define INTSIZE 4
+
 int is_var(int tipo);
 int is_vec(int tipo);
 int is_func(int tipo);
@@ -53,3 +55,9 @@ void assert_compatible_return_type(HASHTABLE *curr_scope, NODE *expression_node,
 void assert_input_param_is_identifier(NODE *expression_node);
 
 
+// ---------------------------------------------------------
+// etapa 5:
+
+void setAddress(HASHTABLE *curr_scope, valor_lexico *vl_identificador, int desloc);
+
+int add_to_vec_decl(valor_lexico *vl_intlit);

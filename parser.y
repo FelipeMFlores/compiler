@@ -24,6 +24,10 @@ HASHTABLE *global_scope = NULL;
 int commandblock_from_function = 0;
 valor_lexico *return_type = NULL;
 
+// para calculo de enderecos:
+int next_local_address = 0;
+int next_global_address = 0;
+
 %}
 %union {
 	struct node* node;
@@ -107,9 +111,6 @@ valor_lexico *return_type = NULL;
 %type <node> assignment_vector
 %type <node> expression_vector
 
-%type <node> decl_var_glob
-%type <node> vector
-
 %type <valor_lexico> type
 
 
@@ -118,20 +119,20 @@ valor_lexico *return_type = NULL;
 
 %%
 
-program:			decl_var_glob program {if(erro) YYABORT; $$ = $2; addChild($$, $1); }  // vars globais filhas da raiz.
+program:			decl_var_glob program {if(erro) YYABORT; $$ = $2; }
 					| func program { if(erro) YYABORT; $$ = $1; arvore = $$; addChild($$, $2);}  //uma funcao filha da outra
 					| %empty { if(erro) YYABORT; $$ = NULL;} 
 					| error program {YYABORT;}
 ;
 
-decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH; $$ = newNode($3); setCode($$, GVD); set_type_by_vl($$, $2); insert_var_decl(curr_hashtable, $2, $3); } |
-					type TK_IDENTIFICADOR ';' {TCH; $$ = newNode($2); setCode($$, GVD); set_type_by_vl($$, $1); insert_var_decl(curr_hashtable, $1, $2); } |
-					TK_PR_STATIC type TK_IDENTIFICADOR vector ';' {TCH $$ = newNode($3); setCode($$, GVECD); set_type_by_vl($$, $2); addChild($$, $4); insert_vec_decl(curr_hashtable, $2, $3); } |
-					type TK_IDENTIFICADOR vector';' {TCH $$ = newNode($2); setCode($$, GVECD); set_type_by_vl($$, $1); addChild($$, $3); insert_vec_decl(curr_hashtable, $1, $2); }
+decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH; insert_var_decl(curr_hashtable, $2, $3); setAddress(curr_hashtable, $3, next_global_address); next_global_address += INTSIZE;} |
+					type TK_IDENTIFICADOR ';' {TCH; insert_var_decl(curr_hashtable, $1, $2); setAddress(curr_hashtable, $2, next_global_address); next_global_address += INTSIZE; } |
+					TK_PR_STATIC type TK_IDENTIFICADOR {TCH insert_vec_decl(curr_hashtable, $2, $3); setAddress(curr_hashtable, $3, next_global_address); } vector ';' |
+					type TK_IDENTIFICADOR {TCH insert_vec_decl(curr_hashtable, $1, $2); setAddress(curr_hashtable, $2, next_global_address); } vector';' 
 ;
 
-vector: '[' TK_LIT_INT ']' vector {TCH $$ = newNode($2); setCode($$, LIT_VEC_IDX); addChild($$, $4); }
-		| '[' TK_LIT_INT ']' {TCH $$ = newNode($2); setCode($$, LIT_VEC_IDX); }
+vector: '[' TK_LIT_INT ']' vector {TCH next_global_address += add_to_vec_decl($2); }
+		| '[' TK_LIT_INT ']' {TCH next_global_address += add_to_vec_decl($2); }
 ;
 
 func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list {commandblock_from_function = 1; return_type = $2;} command_block {TCH $$ = newNode($3); addChild($$, $6); 
@@ -180,13 +181,13 @@ simple_command:		command_block {$$ = NULL;}
 					| continue {$$ = $1;}
 ;
 
-decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = newNode($3); setCode($$, LVD); set_type_by_vl($$, $2); insert_var_decl(curr_hashtable, $2, $3); }
-					| type TK_IDENTIFICADOR {TCH $$ = newNode($2); setCode($$, LVD); set_type_by_vl($$, $1); insert_var_decl(curr_hashtable, $1, $2); }
+decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $2, $3); next_local_address += INTSIZE; }
+					| type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $1, $2); next_local_address += INTSIZE; }
 					| local_var_qualifier type TK_IDENTIFICADOR local_var_init {TCH $$ = $4; addChild($$, newNode($3)); //pai é o <= 
-									setCode($$, LVDI); set_type_by_vl($$, $2);
+									setCode($$, LVDI); set_type_by_vl($$, $2); next_local_address += INTSIZE;
 									insert_var_decl(curr_hashtable, $2, $3); assert_compatible_type_local_var_init(curr_hashtable, $2, $4); }
 					| type TK_IDENTIFICADOR local_var_init {TCH $$ = $3; addChild($$, newNode($2));
-									setCode($$, LVDI); set_type_by_vl($$, $1);
+									setCode($$, LVDI); set_type_by_vl($$, $1); next_local_address += INTSIZE;
 									insert_var_decl(curr_hashtable, $1, $2); assert_compatible_type_local_var_init(curr_hashtable, $1, $3); }
 
 ;

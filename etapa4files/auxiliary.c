@@ -753,3 +753,26 @@ void assert_input_param_is_identifier(NODE *expression_node) {
 }
 
 
+// ------------------------------------------------------------------------------------------------
+// etapa 5:
+
+void setAddress(HASHTABLE *curr_scope, valor_lexico *vl_identificador, int desloc) {
+	char* identificador = (char*)(vl_identificador->value.string);
+	if (key_exist(identificador, curr_scope) == 0) {
+		printf("-- setAddress: erro 1\n");
+		exit(-1);
+	}
+	HASHTABLE_VALUE *val = get_value(identificador, curr_scope);
+	val->desloc = desloc;
+
+	printf("-- variavel %s esta em %d\n", val->key, val->desloc);
+}
+
+int add_to_vec_decl(valor_lexico *vl_intlit) {
+	int vl = vl_intlit->value.inteiro;
+	return vl * INTSIZE;
+}
+
+
+
+
