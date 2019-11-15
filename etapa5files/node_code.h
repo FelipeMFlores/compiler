@@ -12,8 +12,8 @@ enum {
 	IF, // if.
 	IF_ELSE, // if-else.
 	WHILE, // while.
-	FOR, // for.
-	FLSC, // for list simple command.
+	FOR, // for.  NAO NECESSARIO.
+	FLSC, // for list simple command. NAO NECESSARIO.
 
 	// operadores:
 	OR,  // OK

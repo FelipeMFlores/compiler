@@ -212,13 +212,14 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
         break;
     case WHILE:
         break;
-    case FOR:
-        break;
 
 	// LITERAIS:
     case LITVAL:
         generate_lit_val(arvore);
 		break;
+    case IDENT:
+        generate_ident(arvore);
+        break;
 	default:
 		generate_default(arvore);
 	}
@@ -233,6 +234,32 @@ void generate_binop(NODE *arvore, char* op){
 	arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
 
     //add to e.code
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
+}
+
+void generate_ident(NODE *arvore) {
+    if (arvore == NULL) return;
+    arvore->temp = generate_register();
+    char *ident_name = arvore->data->value.string;
+    HASHTABLE_VALUE *val = get_value_in_current_or_outer_scope(ident_name, main_scope);
+
+    ILOC *newiloc;
+
+    char *char_mem_desloc = malloc(30);
+    int i;
+    for (i = 0; i < 30; i++)
+        char_mem_desloc[i] = '\0';
+    
+    sprintf(char_mem_desloc, "%d", val->desloc);
+    //printf("&&XX%s((\n", char_mem_desloc);
+
+    if (val->local_var) {
+        newiloc = new_iloc("loadAI", "rfp", char_mem_desloc, arvore->temp);
+    }
+    else {
+        newiloc = new_iloc("loadAI", "rbss", char_mem_desloc, arvore->temp);
+    }
+
     arvore->code_list = add_iloc(arvore->code_list, newiloc);
 }
 
