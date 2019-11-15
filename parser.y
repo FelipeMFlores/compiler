@@ -270,19 +270,19 @@ continue:			TK_PR_CONTINUE {$$ = newNode($1);}
 ;
 
 control_flow_command:
-		TK_PR_IF '(' expression ')' command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5);} |
-		TK_PR_IF '(' expression ')' command_block TK_PR_ELSE command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5); addChild($$, $7);} |
-		TK_PR_WHILE '(' expression ')' TK_PR_DO command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $6);} |
+		TK_PR_IF '(' expression ')' command_block {$$ = newNode($1); setCode($$, IF); addChild($$, $3); addChild($$, $5);} |
+		TK_PR_IF '(' expression ')' command_block TK_PR_ELSE command_block {$$ = newNode($1); setCode($$, IF_ELSE); addChild($$, $3); addChild($$, $5); addChild($$, $7);} |
+		TK_PR_WHILE '(' expression ')' TK_PR_DO command_block {$$ = newNode($1); setCode($$, WHILE); addChild($$, $3); addChild($$, $6);} |
 		for_command {$$ = $1;}
 ;
 
 for_command:		
-		TK_PR_FOR '(' for_list ':' expression ':' for_list ')' command_block {$$ = newNode($1); addChild($$, $3); addChild($$, $5); addChild($$, $7); addChild($$, $9);}
+		TK_PR_FOR '(' for_list ':' expression ':' for_list ')' command_block {$$ = newNode($1); setCode($$, FOR); addChild($$, $3); addChild($$, $5); addChild($$, $7); addChild($$, $9);}
 ;
 
 for_list:
-		for_list_simple_command {$$ = $1;} |
-		for_list_simple_command ',' for_list {$$ = $1; addChild($$, $3);}
+		for_list_simple_command {$$ = $1; setCode($$, FLSC);} |
+		for_list_simple_command ',' for_list {$$ = $1; setCode($$, FLSC); addChild($$, $3);}
 ;
 
 for_list_simple_command:
@@ -311,12 +311,12 @@ l10:				l10 relational_operator l9 {$$ = $2; addChild($$, $1); addChild($$, $3);
 											set_type($$, TIPO_BOOL); }
 					| l9 {$$ = $1;}
 ;
-l9:					l9 TK_OC_OR l8 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+l9:					l9 TK_OC_OR l8 {$$ = newNode($2); setCode($$, OR); addChild($$, $1); addChild($$, $3);
 											assert_int_float_or_bool($1); assert_int_float_or_bool($3);
 											set_type($$, TIPO_BOOL); }
 					| l8  {$$ = $1;}
 ;
-l8: 				l8 TK_OC_AND l7 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+l8: 				l8 TK_OC_AND l7 {$$ = newNode($2); setCode($$, AND); addChild($$, $1); addChild($$, $3);
 											assert_int_float_or_bool($1); assert_int_float_or_bool($3);
 											set_type($$, TIPO_BOOL); }
 					| l7  {$$ = $1;}
@@ -337,10 +337,10 @@ l6:					l6 TK_OC_SL l5 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
 									set_type($$, TIPO_INT);}
 					| l5  {$$ = $1;}
 ;
-l5:					l5 '+' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+l5:					l5 '+' l4 {$$ = newNode($2); setCode($$, ADD); addChild($$, $1); addChild($$, $3);
 								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
 								infer_type_binop($$, $1, $3);}
-					| l5 '-' l4 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+					| l5 '-' l4 {$$ = newNode($2); setCode($$, SUB); addChild($$, $1); addChild($$, $3);
 								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
 								infer_type_binop($$, $1, $3);}
 					| l4  {$$ = $1;}
@@ -353,11 +353,11 @@ l4:					l4 '&' l3 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
 								infer_type_binop($$, $1, $3);}
 					| l3  {$$ = $1;}
 ;
-l3:					l3 '*' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+l3:					l3 '*' l2 {$$ = newNode($2); setCode($$, MULT); addChild($$, $1); addChild($$, $3);
 								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
 								infer_type_binop($$, $1, $3);}
 
-					| l3 '/' l2 {$$ = newNode($2); addChild($$, $1); addChild($$, $3);
+					| l3 '/' l2 {$$ = newNode($2); setCode($$, DIV); addChild($$, $1); addChild($$, $3);
 								assert_int_float_or_bool($1); assert_int_float_or_bool($3);
 								infer_type_binop($$, $1, $3);}
 
@@ -381,12 +381,12 @@ l0:					literal_expression {$$ = $1;}
 					| '(' expression ')' {$$ = $2;}
 					;
 
-relational_operator:	TK_OC_LE {$$ = newNode($1);} 
-						|	TK_OC_GE {$$ = newNode($1);} 
-						|	TK_OC_EQ {$$ = newNode($1);} 
-						|	TK_OC_NE {$$ = newNode($1);} 
-						|	'<'		 {$$ = newNode($1);} 
-						|	'>'		 {$$ = newNode($1);} 
+relational_operator:	TK_OC_LE {$$ = newNode($1); setCode($$, LE);} 
+						|	TK_OC_GE {$$ = newNode($1); setCode($$, GE);} 
+						|	TK_OC_EQ {$$ = newNode($1); setCode($$, EQ);} 
+						|	TK_OC_NE {$$ = newNode($1); setCode($$, NEQ);} 
+						|	'<'		 {$$ = newNode($1); setCode($$, LESS);} 
+						|	'>'		 {$$ = newNode($1); setCode($$, GREAT);} 
 						;
 
 unary_operator:			'+'	{$$ = newNode($1);}	
@@ -400,16 +400,16 @@ unary_operator:			'+'	{$$ = newNode($1);}
 
 
 literal_expression:		
-					litValue {$$ = $1; set_type_by_vl($$, ($1)->data);}  
-					| TK_IDENTIFICADOR {TCH $$ = newNode($1); 
+					litValue {$$ = $1; setCode($$, LITVAL); set_type_by_vl($$, ($1)->data);}  
+					| TK_IDENTIFICADOR {TCH $$ = newNode($1); setCode($$, IDENT);
 						assert_var_exists(curr_hashtable, $1); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1); } 
-					| TK_IDENTIFICADOR expression_vector {TCH $$ = newNode($1); addChild($$, $2);
+					| TK_IDENTIFICADOR expression_vector {TCH $$ = newNode($1); setCode($$, EXPVEC); addChild($$, $2);
 						assert_vec_exists(curr_hashtable, $1);  set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1); } 
 					| func_call {$$ = $1; copy_type($1, $$);}
 ;
 
-expression_vector:  '[' expression ']' expression_vector {$$ = $2; addChild($$, $4); assert_integer_expression($2);}
-					| '[' expression ']' {$$ = $2; assert_integer_expression($2);}
+expression_vector:  '[' expression ']' expression_vector {$$ = $2; setCode($$, EXPVEC_IDX_2); addChild($$, $4); assert_integer_expression($2);}
+					| '[' expression ']' {$$ = $2; setCode($$, EXPVEC_IDX_2); assert_integer_expression($2);}
 ;
 
 %%
