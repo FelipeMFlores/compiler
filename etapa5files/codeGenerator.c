@@ -199,7 +199,7 @@ void print_code(NODE* arvore) {
 			continue;
 		} 
 		printf("%s %s %s %s \n", iloc->operation, iloc->arg1, iloc->arg2, iloc->arg3);
-		code = code->next;
+		code = code->prev;
 	}
 }
 
