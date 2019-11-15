@@ -138,6 +138,10 @@ void compute_addresses(NODE *arvore) {
 
 	HASHTABLE_VALUE *aux;
 
+	NODE *aux_vec;
+
+	int add_inc;
+
 	if (arvore->code == GVD) {  // global var declaration.
 		if (key_exist(arvore->data->value.string, global_scope) == 0) {
 			printf("compute_addresses: erro 1\n");
@@ -168,7 +172,27 @@ void compute_addresses(NODE *arvore) {
 	}
 
 	else if (arvore->code == GVECD) {  // global vector declaration.
+		if (key_exist(arvore->data->value.string, global_scope) == 0) {
+			printf("compute_Addresses: erro 3\n");
+			exit(-1);
+		}
+		aux = get_value(arvore->data->value.string, global_scope);
+	
+		printf("$$$ %d\n", aux->desloc);
 
+		if (aux->desloc == -1) {
+			aux->desloc = next_global_address;
+			printf("-> GVECD %s in %d\n", aux->key, aux->desloc);
+			// calcula proximo endereço disponivel:
+			add_inc = 0;
+
+			aux_vec = arvore->firstKid;
+			while (aux_vec) {
+				printf("** %d\n", aux_vec->data->value.inteiro);
+				aux_vec = aux_vec->firstKid;
+			}
+
+		}
 	}
 
 
