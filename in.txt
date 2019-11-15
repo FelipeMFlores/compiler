@@ -2,5 +2,6 @@ int main(){
     int a;
     int b;
     a = 2 + 3;
-    a = 3 > 3;
+    a = 3 > 4;
+    b = 4 >= 0;
 }
