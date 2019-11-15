@@ -47,8 +47,6 @@ void generate_code(void *arvore);
 void generate_binop(NODE *arvore, char* op);
 void output_code(void *arvore);
 
-void compute_addresses(NODE *arvore);
-
 // -------------------------------------------------------------------------------------
 
 void setCode(NODE *node, int code);

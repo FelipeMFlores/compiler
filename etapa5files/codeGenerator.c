@@ -124,95 +124,11 @@ void print_ncode(NODE *node) {
 }
 
 
-int next_local_address = 0;
-int next_global_address = 0;
-
-#define INTSIZE 4
-
-void compute_addresses(NODE *arvore) {
-	//print_ncode(arvore);
-	// -------------
-	if (global_scope == NULL) {
-		global_scope = main_scope->prev;
-	}
-
-	HASHTABLE_VALUE *aux;
-
-	NODE *aux_vec;
-
-	int add_inc;
-
-	if (arvore->code == GVD) {  // global var declaration.
-		if (key_exist(arvore->data->value.string, global_scope) == 0) {
-			printf("compute_addresses: erro 1\n");
-			exit(-1);
-		}
-		aux = get_value(arvore->data->value.string, global_scope);
-		if (aux->desloc == -1) {
-			aux->desloc = next_global_address;
-			next_global_address += INTSIZE;
-			printf("-> GVD %s in %d\n", aux->key, aux->desloc);
-		}
-	}
-
-	else if (arvore->code == LVD || arvore->code == LVDI) {  // local var declaration sem ou com inicialização.
-		if (key_exist(arvore->data->value.string, main_scope) == 0) {
-			printf("compute_addresses: erro 2\n");
-			exit(-1);
-		}
-		aux = get_value(arvore->data->value.string, main_scope);
-		if (aux->desloc == -1) {
-			aux->desloc = next_local_address;
-			next_local_address += INTSIZE;
-			if (arvore->code == LVD)
-				printf("-> LVD %s in %d\n", aux->key, aux->desloc);
-			else
-				printf("-> LVDI %s in %d\n", aux->key, aux->desloc);
-		}
-	}
-
-	else if (arvore->code == GVECD) {  // global vector declaration.
-		if (key_exist(arvore->data->value.string, global_scope) == 0) {
-			printf("compute_Addresses: erro 3\n");
-			exit(-1);
-		}
-		aux = get_value(arvore->data->value.string, global_scope);
-	
-		printf("$$$ %d\n", aux->desloc);
-
-		if (aux->desloc == -1) {
-			aux->desloc = next_global_address;
-			printf("-> GVECD %s in %d\n", aux->key, aux->desloc);
-			// calcula proximo endereço disponivel:
-			add_inc = 0;
-
-			aux_vec = arvore->firstKid;
-			while (aux_vec) {
-				printf("** %d\n", aux_vec->data->value.inteiro);
-				aux_vec = aux_vec->firstKid;
-			}
-
-		}
-	}
-
-
-
-
-	// -----------------
-	if (arvore->firstKid != NULL) {
-		compute_addresses(arvore->firstKid);
-	}
-	NODE *sib = arvore->siblings;
-	while (sib) {
-		compute_addresses(sib);
-		sib = sib->siblings;
-	}
-}
 
 void generate_code(void *arvore_void) {
     if(arvore_void == NULL) return;
     NODE *arvore = (NODE*)arvore_void;
-    compute_addresses(arvore);
+    global_scope = main_scope->prev;
 
 
 
