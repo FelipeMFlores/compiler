@@ -134,17 +134,28 @@ void generate_code(void *arvore_void) {
     NODE *arvore = (NODE*)arvore_void;
     global_scope = main_scope->prev;
 
-	generate_code_rec(arvore);
+	generate_code_rec(arvore, 0);
 	print_code(arvore);
 
 }
 
-void generate_code_rec(NODE* arvore) {
+void generate_code_rec(NODE* arvore, int short_circuit) {
 	if(arvore == NULL) return;
 
+    int need_short_circuit = 0;
+    if (short_circuit) {
+        need_short_circuit = 1;
+    }
+    else {
+        if (arvore->code == IF || arvore->code == IF_ELSE || arvore->code == WHILE ||
+            arvore->code == FOR) {
+            need_short_circuit = 1;
+        }
+    }
+
     //not sure if sibling or childrens first
-    generate_code_rec(arvore->firstKid);
-    generate_code_rec(arvore->siblings);
+    generate_code_rec(arvore->firstKid, need_short_circuit);
+    generate_code_rec(arvore->siblings, need_short_circuit);
 
 	switch (arvore->code){
 	// OPERADORES:
@@ -159,6 +170,20 @@ void generate_code_rec(NODE* arvore) {
         break;
     case DIV:
         generate_binop(arvore, "div");
+        break;
+    case OR:
+        if (!need_short_circuit)
+            generate_binop(arvore, "or");
+        else {
+
+        }
+        break;
+    case AND:
+        if (!need_short_circuit)
+            generate_binop(arvore, "and");
+        else {
+            
+        }
         break;
 	// RELACIONAIS:
 	case LE:
@@ -179,6 +204,17 @@ void generate_code_rec(NODE* arvore) {
 	case GREAT:
         generate_binop(arvore, "cmp_GT");
        	break;
+
+    // CONDICIONAIS:
+    case IF:
+        break;
+    case IF_ELSE:
+        break;
+    case WHILE:
+        break;
+    case FOR:
+        break;
+
 	// LITERAIS:
     case LITVAL:
         generate_lit_val(arvore);

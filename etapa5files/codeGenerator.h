@@ -29,7 +29,7 @@ char* generate_label();
 char* generate_register();
 
 void generate_code(void *arvore_void);
-void generate_code_rec(NODE* arvore);
+void generate_code_rec(NODE* arvore, int short_circuit);
 void generate_default(NODE *arvore);
 void generate_binop(NODE *arvore, char* op);
 void generate_lit_val(NODE *arvore);

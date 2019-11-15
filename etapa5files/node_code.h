@@ -16,8 +16,8 @@ enum {
 	FLSC, // for list simple command.
 
 	// operadores:
-	OR,
-	AND, 
+	OR,  // OK
+	AND, // OK
 	ADD, // OK
 	SUB, // OK
 	MULT, // OK
