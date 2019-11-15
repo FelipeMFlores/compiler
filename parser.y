@@ -168,7 +168,7 @@ command_block_aux:	simple_command ';' '}' {TCH $$ = $1; curr_hashtable = curr_ha
 
 simple_command:		command_block {$$ = NULL;}
 					| decl_var_local {$$ = $1;}
-					| assignment {$$ = $1;}
+					| assignment {$$ = $1; setCode($$, ASSIGN);}
 					| input {$$ = NULL;}
 					| output {$$ = NULL;}
 					| func_call {$$ = $1;}
@@ -178,11 +178,13 @@ simple_command:		command_block {$$ = NULL;}
 					| continue {$$ = $1;}
 ;
 
-decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $2, $3); }
-					| type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $1, $2); }
+decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = newNode($3); setCode($$, LVD); set_type_by_vl($$, $2); insert_var_decl(curr_hashtable, $2, $3); }
+					| type TK_IDENTIFICADOR {TCH $$ = newNode($2); setCode($$, LVD); set_type_by_vl($$, $1); insert_var_decl(curr_hashtable, $1, $2); }
 					| local_var_qualifier type TK_IDENTIFICADOR local_var_init {TCH $$ = $4; addChild($$, newNode($3)); //pai é o <= 
+									setCode($$, LVDI); set_type_by_vl($$, $2);
 									insert_var_decl(curr_hashtable, $2, $3); assert_compatible_type_local_var_init(curr_hashtable, $2, $4); }
 					| type TK_IDENTIFICADOR local_var_init {TCH $$ = $3; addChild($$, newNode($2));
+									setCode($$, LVDI); set_type_by_vl($$, $1);
 									insert_var_decl(curr_hashtable, $1, $2); assert_compatible_type_local_var_init(curr_hashtable, $1, $3); }
 
 ;
