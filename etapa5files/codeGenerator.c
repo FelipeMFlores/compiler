@@ -146,11 +146,8 @@ void generate_code_rec(NODE* arvore) {
     generate_code_rec(arvore->firstKid);
     generate_code_rec(arvore->siblings);
 
-    //TODO: add a attribute on the tree that represents the tyoe of code to be generated,
-    //example: assigment, expression, add, div, ...
-    //switch pra cada tipo, cada um vai ter uma função generate
-    //alugumas pode ser abstraidas: todas as binops vao ser iguais, soh vao mudar a operacao
-    switch (arvore->code){
+	switch (arvore->code){
+	// OPERADORES:
     case ADD:
         generate_binop(arvore, "add");
        break;
@@ -163,8 +160,29 @@ void generate_code_rec(NODE* arvore) {
     case DIV:
         generate_binop(arvore, "div");
         break;
+	// RELACIONAIS:
+	case LE:
+        generate_binop(arvore, "cmp_LE");
+       	break;
+	case GE:
+        generate_binop(arvore, "cmp_GE");
+       	break;
+	case EQ:
+        generate_binop(arvore, "cmp_EQ");
+       	break;
+	case NEQ:
+        generate_binop(arvore, "cmp_NE");
+       	break;
+	case LESS:
+        generate_binop(arvore, "cmp_LT");
+       	break;
+	case GREAT:
+        generate_binop(arvore, "cmp_GT");
+       	break;
+	// LITERAIS:
     case LITVAL:
         generate_lit_val(arvore);
+		break;
 	default:
 		generate_default(arvore);
 	}

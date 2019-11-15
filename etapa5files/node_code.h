@@ -19,17 +19,17 @@ enum {
 	OR,
 	AND, 
 	ADD, // OK
-	SUB, 
-	MULT,
-	DIV, 
+	SUB, // OK
+	MULT, // OK
+	DIV, // OK
 
 	// operadores relacionais:
-	LE,  // <=
-	GE,  // >=
-	EQ,  // ==
-	NEQ, // !=
-	LESS, // <
-	GREAT, // >
+	LE,  // OK // <=
+	GE,  // OK // >=
+	EQ,  // OK // ==
+	NEQ, // OK // !=
+	LESS, // OK // <
+	GREAT, // OK // >
 
 	// expressoes literais:
 	LITVAL,  // OK
