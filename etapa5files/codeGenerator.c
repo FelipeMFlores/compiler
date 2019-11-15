@@ -269,6 +269,10 @@ void print_code(NODE* arvore) {
 		printf("Codigo Vazio\n");
 		return;
 	}
+	// go back to the first node
+	while(code->prev != NULL){
+		code = code->prev;
+	}
 	while(code != NULL){
 		ILOC* iloc = code->iloc;
 		if(iloc == NULL){
@@ -297,7 +301,7 @@ void print_code(NODE* arvore) {
             printf("\n");
         }
 		//printf("%s %s %s %s \n", iloc->operation, iloc->arg1, iloc->arg2, iloc->arg3);
-		code = code->prev;
+		code = code->next;
 	}
 }
 
