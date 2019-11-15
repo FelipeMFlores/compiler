@@ -4,6 +4,7 @@
 #include "tree.h"
 #include "etapa4files/hashtable_value.h"
 #include "etapa5files/node_code.h"
+#include "etapa5files/codeGenerator.h"
 
 node_list* nodes_list = NULL;
 
@@ -209,25 +210,28 @@ void libera_recursivo(NODE* node) {
 
 void exporta (void *arvore) {
     FILE *csv = fopen("e3.csv", "w");
+    FILE *csv_map = fopen("csv_map.txt", "w");
     if (arvore == NULL) {
         //printf("--> exporta: Arvore vazia. \"e3.csv\" vazio criado.\n");
     }
     else {
-        exporta_recursivo((NODE*)arvore, csv);
+        exporta_recursivo((NODE*)arvore, csv, csv_map);
     }
     fclose(csv);    
 }
 
-void exporta_recursivo(NODE *node, FILE *csv) {
+int next_node = 0;
+void exporta_recursivo(NODE *node, FILE *csv, FILE *csv_map) {
     if (node == NULL) {
         return;
     }
+    fprintf(csv_map, "%p %s\n", (void*)node, get_node_label(node));
     if (node->firstKid != NULL) {
         fprintf(csv, "%p, %p\n", (void*)node, (void*)(node->firstKid));
-        exporta_recursivo(node->firstKid, csv);
+        exporta_recursivo(node->firstKid, csv, csv_map);
     }
     if (node->siblings != NULL) {
         fprintf(csv, "%p, %p\n", (void*)node->parent, (void*)(node->siblings));
-        exporta_recursivo(node->siblings, csv);        
+        exporta_recursivo(node->siblings, csv, csv_map);        
     }
 }

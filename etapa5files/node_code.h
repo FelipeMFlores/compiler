@@ -3,6 +3,7 @@
 enum {
 	INVALID_CODE = 0,
 	GVD,  // global var decl.
+	GVECD,  // global vector decl.
 	LVD,  // local var decl.
 	LVDI,  // local var decl. com init.
 	ASSIGN,  // assignment.
