@@ -128,8 +128,8 @@ decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH; $$ = newNode($3); s
 					type TK_IDENTIFICADOR vector';' {TCH $$ = newNode($2); setCode($$, GVD); set_type_by_vl($$, $1); addChild($$, $3); insert_vec_decl(curr_hashtable, $1, $2); }
 ;
 
-vector: '[' TK_LIT_INT ']' vector {TCH $$ = newNode($2); setCode($$, VECIDX); addChild($$, $4); }
-		| '[' TK_LIT_INT ']' {TCH $$ = newNode($2); setCode($$, VECIDX); }
+vector: '[' TK_LIT_INT ']' vector {TCH $$ = newNode($2); setCode($$, LIT_VEC_IDX); addChild($$, $4); }
+		| '[' TK_LIT_INT ']' {TCH $$ = newNode($2); setCode($$, LIT_VEC_IDX); }
 ;
 
 func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list {commandblock_from_function = 1; return_type = $2;} command_block {TCH $$ = newNode($3); addChild($$, $6); 
@@ -204,11 +204,12 @@ litValue:			TK_LIT_INT {$$ = newNode($1);}
 					| TK_LIT_STRING {$$ = newNode($1);}
 ;
 
-assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); addChild($$, newNode($1)); addChild($$, $3);
+assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); setCode($$, ASSIGN); addChild($$, newNode($1)); addChild($$, $3);
 														assert_var_exists(curr_hashtable, $1);
 														assert_compatible_type_assignment(curr_hashtable, $1, $3);
 														} //pai é o =
 					| TK_IDENTIFICADOR assignment_vector '=' expression {TCH $$ = newNode($3); 
+																			setCode($$, ASSIGN);
 																			NODE* i = newNode($1);
 																			addChild(i, $2);
 																			addChild($$, i); addChild($$, $4);
@@ -217,8 +218,8 @@ assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); addChild($$
 																			}
 ;
 
-assignment_vector: '[' expression ']' assignment_vector {$$ = $2; addChild($$, $4); assert_integer_expression($2);}
-					| '[' expression ']' {$$ = $2; assert_integer_expression($2);}
+assignment_vector: '[' expression ']' assignment_vector {$$ = $2; setCode($$, EXP_VEC_IDX); addChild($$, $4); assert_integer_expression($2);}
+					| '[' expression ']' {$$ = $2; setCode($$, EXP_VEC_IDX); assert_integer_expression($2);}
 ;
 
 input:				TK_PR_INPUT expression  {assert_input_param_is_identifier($2);}

@@ -6,6 +6,7 @@ enum {
 	LVD,  // local var decl.
 	LVDI,  // local var decl. com init.
 	ASSIGN,  // assignment.
-	VECIDX, // '[index]' para arrays multidimensionais.
+	LIT_VEC_IDX, // '[index]' para arrays multidimensionais. index eh um literal inteiro.
+	EXP_VEC_IDX, // '[index]' para arrays multidimensionais. index pode ser expressao inteira.
 };
 
