@@ -32,6 +32,7 @@ void insert_var_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico 
 		exit(ERR_DECLARED);
 	}
 	HASHTABLE_VALUE *new_hashtable_val = (HASHTABLE_VALUE*)malloc(sizeof(HASHTABLE_VALUE));
+	new_hashtable_val->desloc = -1;
 	new_hashtable_val->linha = vl_identificador->line;
 	new_hashtable_val->natureza = NATUREZA_IDENTIFICADOR;
 

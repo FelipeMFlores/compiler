@@ -43,6 +43,9 @@ typedef struct hashtablevalue {
 	int tamanho;  // tamanho derivado do tipo.
 	FUNC_ARG_LIST *func_arg_list;
 
+
+	int desloc; // deslocamento para geracao de codigo.
+
 	char *key;  // string do simbolo associado.
 
 	struct hashtablevalue *prox;  // lista encadeada.

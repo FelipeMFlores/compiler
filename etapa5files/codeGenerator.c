@@ -1,4 +1,6 @@
 #include <string.h>
+#include "../etapa4files/hashtable.h"
+#include "../etapa4files/auxiliary.h"
 #include "node_code.h"
 #include "codeGenerator.h"
 
@@ -130,15 +132,39 @@ int next_global_address = 0;
 void compute_addresses(NODE *arvore) {
 	//print_ncode(arvore);
 	// -------------
+	if (global_scope == NULL) {
+		global_scope = main_scope->prev;
+	}
+
+	HASHTABLE_VALUE *aux;
 
 	if (arvore->code == GVD) {  // global var declaration.
-		arvore->data->value.string
-
-		next_global_address += INTSIZE;
+		if (key_exist(arvore->data->value.string, global_scope) == 0) {
+			printf("compute_addresses: erro 1\n");
+			exit(-1);
+		}
+		aux = get_value(arvore->data->value.string, global_scope);
+		if (aux->desloc == -1) {
+			aux->desloc = next_global_address;
+			next_global_address += INTSIZE;
+			printf("-> GVD %s in %d\n", aux->key, aux->desloc);
+		}
 	}
 
 	else if (arvore->code == LVD || arvore->code == LVDI) {  // local var declaration sem ou com inicialização.
-
+		if (key_exist(arvore->data->value.string, main_scope) == 0) {
+			printf("compute_addresses: erro 2\n");
+			exit(-1);
+		}
+		aux = get_value(arvore->data->value.string, main_scope);
+		if (aux->desloc == -1) {
+			aux->desloc = next_local_address;
+			next_local_address += INTSIZE;
+			if (arvore->code == LVD)
+				printf("-> LVD %s in %d\n", aux->key, aux->desloc);
+			else
+				printf("-> LVDI %s in %d\n", aux->key, aux->desloc);
+		}
 	}
 
 	else if (arvore->code == GVECD) {  // global vector declaration.

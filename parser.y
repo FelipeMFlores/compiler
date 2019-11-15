@@ -14,6 +14,8 @@ int erro = 0;
 
 // declara curr_hashtable e inicializa com NULL.
 HASHTABLE *curr_hashtable = NULL;
+HASHTABLE *main_scope = NULL;
+HASHTABLE *global_scope = NULL;
 
 // inicializa curr_hashtable se ainda nao foi inicializada.
 #define TCH if(!curr_hashtable){curr_hashtable=create_hashtable();}
@@ -150,7 +152,7 @@ param_list_aux:		type TK_IDENTIFICADOR ')' {TCH $$ = newValorLexicoList($1); $$-
 
 command_block:		'{' '}' {$$ = NULL; commandblock_from_function = 0; }
 					| '{' 
-							{TCH HASHTABLE *aux = create_hashtable(); aux->prev = curr_hashtable; curr_hashtable = aux;   // cria novo escopo.
+							{TCH HASHTABLE *aux = create_hashtable(); aux->prev = curr_hashtable; main_scope = aux; curr_hashtable = aux;   // cria novo escopo.
 									if (commandblock_from_function){aux->return_type = type_from_vl(return_type);} commandblock_from_function = 0; }
 								command_block_aux 
 							{$$ = $3;} 

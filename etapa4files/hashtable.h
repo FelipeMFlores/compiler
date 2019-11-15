@@ -4,11 +4,15 @@
 
 #define HASHTABLE_SIZE 300
 
+
 typedef struct hashtable {
 	HASHTABLE_VALUE* data[HASHTABLE_SIZE];
 	struct hashtable *prev;  // Para implementar stack de hashtables.
 	int return_type; // no caso de escopo de funcao.
 } HASHTABLE;
+
+extern HASHTABLE *main_scope;
+extern HASHTABLE *global_scope;
 
 HASHTABLE *create_hashtable();
 
