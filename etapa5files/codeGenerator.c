@@ -301,12 +301,21 @@ void generate_assign_vec(NODE *arvore) {
     }
     HASHTABLE_VALUE *vl = get_value(ident_name, global_scope);
 
-    int desloc_rbss = vl->desloc;
-
-    char* dims[MAX_DIM];
+    char *desloc_rbss_char = malloc(30);
     int i;
-    for (i = 0; i < MAX_DIM; i++)
+    for (i = 0; i < 30; i++) {
+        desloc_rbss_char[i] = '\0';
+    }
+    sprintf(desloc_rbss_char, "%d", vl->desloc);
+
+    char* dims[MAX_DIM];  // dimensoes acessar.
+    int vector_number_of_dims = 0;
+    for (i = 0; i < MAX_DIM; i++) {        
+        if (vl->dimensions_size[i] != -1) {
+            vector_number_of_dims++;
+        }
         dims[i] = NULL;
+    }
 
     // verifica posicoes acessar nas dimensoes:
     NODE *percorre = arvore->firstKid->firstKid;
@@ -325,11 +334,45 @@ void generate_assign_vec(NODE *arvore) {
     // for (i = 0; i < MAX_DIM && dims[i]; i++) {
     //     printf("%s\n", dims[i]);
     // }
-
     
+    // ----------------------------------------------
+
+    // base: rbss + desloc_rbss.
+    // deslocamentos nas dimensoes: guardados em registradores em dims.
+    // numero total de dimensoes do array: vector_number_of_dims.
+    // tamanhos originais das dimensoes do array: vl->dimensions_size.
+
+    char *base = generate_register();
+    char *aux = generate_register();
+    char *final_address = generate_register();
+
+    ILOC *newiloc;
+
+    if (vector_number_of_dims == 1) {
+        //addI    r1, c2  =>  r3    // r3 = r1 + c2
+        //multI   r1, c2  =>  r3    // r3 = r1 * c2
+        //add     r1, r2  =>  r3    // r3 = r1 + r2
+        newiloc = new_iloc("addI", "rbss", desloc_rbss_char, base);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+        newiloc = new_iloc("multI", dims[0], "4", aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+        newiloc = new_iloc("add", base, aux, final_address);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+    }
 
 
+    // registrador final_address contem o endereco a ser escrito.
 
+    //store    r1 => r2        // Memoria(r2) = r1
+    newiloc = new_iloc("store", arvore->firstKid->siblings->temp, final_address, NULL);
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+    NODE_LIST *nlistaux = arvore->code_list;
+
+    // firstkid: identificador do array.
+    // firstkid->siblings: expression que quer escrever.
+    arvore->code_list = concat_lists(arvore->firstKid->siblings->code_list, arvore->firstKid->code_list);
+    arvore->code_list = concat_lists(arvore->code_list, nlistaux);
 }
 
 void generate_lvdi(NODE *arvore) {

@@ -798,7 +798,7 @@ void set_curr_vector(HASHTABLE *curr_scope, valor_lexico *vl_identificador) {
 // set dimension size of current vector reading in parser.y.
 void set_dimension_size(int dim_idx, int dim_size) {
 	curr_vector_reading->dimensions_size[dim_idx] = dim_size;
-	printf("-> %d, %d\n", dim_idx, dim_size);
+	//printf("-> %d, %d, %s\n", dim_idx, dim_size, curr_vector_reading->key);
 }
 
 
