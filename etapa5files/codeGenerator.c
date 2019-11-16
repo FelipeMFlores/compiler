@@ -246,11 +246,27 @@ void generate_assign(NODE *arvore) {
     // firstkid: registrador com o endereco de memoria a ser escrito.
     // firstkid->siblings: registrador com o valor a escrever.
     if(arvore == NULL) return;
+
+    char *ident_name = arvore->firstKid->data->value.string;
+
+    HASHTABLE_VALUE *vl = get_value_in_current_or_outer_scope(ident_name, main_scope);
+
     ILOC *newiloc;
 
-    printf("XX%s|%s\n", arvore->firstKid->temp, arvore->firstKid->siblings->temp);
+    char *char_desloc = malloc(30);
+    int i;
+    for (i = 0; i < 30; i++) {
+        char_desloc[i] = '\0';
+    }
+    sprintf(char_desloc, "%d", vl->desloc);
 
-    newiloc = new_iloc("store", arvore->firstKid->temp, arvore->firstKid->siblings->temp, NULL);
+    if (vl->local_var) {
+        newiloc = new_iloc("storeAI", arvore->firstKid->siblings->temp, "rfp", char_desloc);
+    }
+    else {
+        newiloc = new_iloc("storeAI", arvore->firstKid->siblings->temp, "rbss", char_desloc);
+    }
+
     arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
     arvore->code_list = add_iloc(arvore->code_list, newiloc);
 }
@@ -326,24 +342,48 @@ void print_code(NODE* arvore) {
 		} 
 
         printf("%s", iloc->operation);
-        if (iloc->arg1) {
-            printf(" %s", iloc->arg1);
 
-            if (iloc->arg2) {
-                if (iloc->arg3) {
-                    printf(", %s => %s\n", iloc->arg2, iloc->arg3);
+        if (strstr(iloc->operation, "store") != NULL) {
+            if (iloc->arg1) {
+                printf(" %s =>", iloc->arg1);
+
+                if (iloc->arg2) {
+                    if (iloc->arg3) {
+                        printf(" %s, %s\n", iloc->arg2, iloc->arg3);
+                    }
+                    else {
+                        printf(" %s\n", iloc->arg2);
+                    }
                 }
                 else {
-                    printf(" => %s\n", iloc->arg2);
+                    printf("\n");
                 }
+
             }
             else {
                 printf("\n");
             }
-
         }
         else {
-            printf("\n");
+            if (iloc->arg1) {
+                printf(" %s", iloc->arg1);
+
+                if (iloc->arg2) {
+                    if (iloc->arg3) {
+                        printf(", %s => %s\n", iloc->arg2, iloc->arg3);
+                    }
+                    else {
+                        printf(" => %s\n", iloc->arg2);
+                    }
+                }
+                else {
+                    printf("\n");
+                }
+
+            }
+            else {
+                printf("\n");
+            }
         }
 		//printf("%s %s %s %s \n", iloc->operation, iloc->arg1, iloc->arg2, iloc->arg3);
 		code = code->next;
