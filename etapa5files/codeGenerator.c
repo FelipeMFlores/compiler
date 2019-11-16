@@ -127,7 +127,7 @@ void print_ncode(NODE *node) {
 		case LESS:printf("LESS");break;case GREAT:printf("GREAT");break;case LITVAL:printf("LITVAL");break;
 		case IDENT:printf("IDENT");break;case EXPVEC:printf("EXPVEC");break;case EXPVEC_IDX_2:printf("EXPVEC_IDX_2");break;
 		case GVECD:printf("GVECD");break; case CONTINUE:printf("CONTINUE");break;case BREAK:printf("BREAK");break;
-        case RETURN:printf("RETURN");break;
+        case RETURN:printf("RETURN");break;case ASSIGN_VEC:printf("ASSIGN_VEC");break;
 		default: printf("??");
 	}
 	printf("\n");
@@ -222,7 +222,9 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
         generate_assign(arvore);
         next_simple_command = 3;
         break;
-
+    case ASSIGN_VEC:
+        generate_assign_vec(arvore);
+        break;
     case LVDI:  // local var declaration com inicializacao.
         generate_lvdi(arvore);
         break;
@@ -289,6 +291,45 @@ void generate_assign(NODE *arvore) {
 
     arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
     arvore->code_list = add_iloc(arvore->code_list, newiloc);
+}
+
+void generate_assign_vec(NODE *arvore) {
+    char *ident_name = arvore->firstKid->data->value.string;
+    if (key_exist(ident_name, global_scope) == 0) {
+        printf("generate_assign_vec: error 1\n");
+        exit(-1);
+    }
+    HASHTABLE_VALUE *vl = get_value(ident_name, global_scope);
+
+    int desloc_rbss = vl->desloc;
+
+    char* dims[MAX_DIM];
+    int i;
+    for (i = 0; i < MAX_DIM; i++)
+        dims[i] = NULL;
+
+    // verifica posicoes acessar nas dimensoes:
+    NODE *percorre = arvore->firstKid->firstKid;
+    i = 0;
+    while (percorre) {
+        // pega o registrador da dimensao atual:
+        dims[i] = percorre->temp;
+        i++;
+        percorre = percorre->firstKid;
+        if (!percorre)
+            break;
+        while (percorre->siblings) {
+            percorre = percorre->siblings;
+        }
+    }
+    // for (i = 0; i < MAX_DIM && dims[i]; i++) {
+    //     printf("%s\n", dims[i]);
+    // }
+
+    
+
+
+
 }
 
 void generate_lvdi(NODE *arvore) {
@@ -544,7 +585,7 @@ char* get_node_label(NODE *node) {
 		case LESS:strcpy(label,"LESS");break;case GREAT:strcpy(label,"GREAT");break;case LITVAL:strcpy(label,"LITVAL");break;
 		case IDENT:strcpy(label,"IDENT");break;case EXPVEC:strcpy(label,"EXPVEC");break;case EXPVEC_IDX_2:strcpy(label,"EXPVEC_IDX_2");break;
 		case GVECD:strcpy(label, "GVECD");break;case CONTINUE:strcpy(label, "CONTINUE");break;case BREAK:strcpy(label, "BREAK");break;
-        case RETURN:strcpy(label, "RETURN");break;
+        case RETURN:strcpy(label, "RETURN");break;case ASSIGN_VEC:strcpy(label, "ASSIGN_VEC");break;
 		default: strcpy(label, "??");
 	}
 	return label;

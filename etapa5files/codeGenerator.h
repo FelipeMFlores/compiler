@@ -6,6 +6,8 @@
 
 #define MAX_SIZE 5 //1 char + 1 int
 
+#define MAX_DIM 200
+
 // creates a new iloc instruction, some args may be NULL
 ILOC* new_iloc(char* operation, char* arg1, char* arg2, char* arg3);
 ILOC* init_label();
@@ -40,6 +42,8 @@ void generate_assign(NODE *arvore);
 void generate_if(NODE* arvore);
 void generate_if_else(NODE* arvore);
 void generate_lvdi(NODE *arvore);
+void generate_assign_vec(NODE *arvore);
+void generate_exp_vec_idx(NODE *arvore);
 
 void output_code(void *arvore);
 void print_code(NODE* arvore);

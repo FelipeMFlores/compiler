@@ -172,7 +172,7 @@ command_block_aux:	simple_command ';' '}' {TCH $$ = $1; curr_hashtable = curr_ha
 
 simple_command:		command_block {$$ = NULL;}
 					| decl_var_local {$$ = $1;}
-					| assignment {$$ = $1; setCode($$, ASSIGN);}
+					| assignment {$$ = $1;}
 					| input {$$ = NULL;}
 					| output {$$ = NULL;}
 					| func_call {$$ = $1;}
@@ -228,8 +228,8 @@ assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); setCode($$,
 																			}
 ;
 
-assignment_vector: '[' expression ']' assignment_vector {$$ = $2; setCode($$, EXP_VEC_IDX); addChild($$, $4); assert_integer_expression($2);}
-					| '[' expression ']' {$$ = $2; setCode($$, EXP_VEC_IDX); assert_integer_expression($2);}
+assignment_vector: '[' expression ']' assignment_vector {$$ = $2;  addChild($$, $4); assert_integer_expression($2);}
+					| '[' expression ']' {$$ = $2; assert_integer_expression($2);}
 ;
 
 input:				TK_PR_INPUT expression  {assert_input_param_is_identifier($2);}
