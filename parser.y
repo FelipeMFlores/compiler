@@ -206,12 +206,12 @@ local_var_init:		TK_OC_LE TK_IDENTIFICADOR {TCH $$ = newNode($1); addChild($$, n
 					| TK_OC_LE litValue {$$ = newNode($1); addChild($$, $2);}
 ;
 
-litValue:			TK_LIT_INT {$$ = newNode($1);}
-					| TK_LIT_FLOAT {$$ = newNode($1);}
-					| TK_LIT_FALSE {$$ = newNode($1);}
-					| TK_LIT_TRUE {$$ = newNode($1);}
-					| TK_LIT_CHAR {$$ = newNode($1);}
-					| TK_LIT_STRING {$$ = newNode($1);}
+litValue:			TK_LIT_INT {$$ = newNode($1); setCode($$, LITVAL);}
+					| TK_LIT_FLOAT {$$ = newNode($1); setCode($$, LITVAL);}
+					| TK_LIT_FALSE {$$ = newNode($1); setCode($$, LITVAL);}
+					| TK_LIT_TRUE {$$ = newNode($1); setCode($$, LITVAL);}
+					| TK_LIT_CHAR {$$ = newNode($1); setCode($$, LITVAL);}
+					| TK_LIT_STRING {$$ = newNode($1); setCode($$, LITVAL);}
 ;
 
 assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); setCode($$, ASSIGN); addChild($$, newNode($1)); addChild($$, $3);
@@ -410,7 +410,7 @@ unary_operator:			'+'	{$$ = newNode($1);}
 
 
 literal_expression:		
-					litValue {$$ = $1; setCode($$, LITVAL); set_type_by_vl($$, ($1)->data);}  
+					litValue {$$ = $1; set_type_by_vl($$, ($1)->data);}  
 					| TK_IDENTIFICADOR {TCH $$ = newNode($1); setCode($$, IDENT);
 						assert_var_exists(curr_hashtable, $1); set_type_from_identifier_in_hashtable(curr_hashtable, $$, $1); } 
 					| TK_IDENTIFICADOR expression_vector {TCH $$ = newNode($1); setCode($$, EXPVEC); addChild($$, $2);

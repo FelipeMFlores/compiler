@@ -178,18 +178,10 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
         generate_binop(arvore, "div");
         break;
     case OR:
-        if (!need_short_circuit)
             generate_binop(arvore, "or");
-        else {
-
-        }
         break;
     case AND:
-        if (!need_short_circuit)
             generate_binop(arvore, "and");
-        else {
-            
-        }
         break;
 	// RELACIONAIS:
 	case LE:
@@ -229,6 +221,10 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
     case ASSIGN:
         generate_assign(arvore);
         next_simple_command = 3;
+        break;
+
+    case LVDI:  // local var declaration com inicializacao.
+        generate_lvdi(arvore);
         break;
 
 	// LITERAIS:
@@ -291,6 +287,22 @@ void generate_assign(NODE *arvore) {
         newiloc = new_iloc("storeAI", arvore->firstKid->siblings->temp, "rbss", char_desloc);
     }
 
+    arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
+}
+
+void generate_lvdi(NODE *arvore) {
+    if (arvore == NULL) return;
+    char *ident_name = arvore->firstKid->siblings->data->value.string;
+    HASHTABLE_VALUE *vl = get_value_in_current_or_outer_scope(ident_name, main_scope);
+    ILOC *newiloc;
+    char *char_desloc = malloc(30);
+    int i;
+    for (i = 0; i < 30; i++) {
+        char_desloc[i] = '\0';
+    }
+    sprintf(char_desloc, "%d", vl->desloc);
+    newiloc = new_iloc("storeAI", arvore->firstKid->temp, "rfp", char_desloc);
     arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
     arvore->code_list = add_iloc(arvore->code_list, newiloc);
 }
