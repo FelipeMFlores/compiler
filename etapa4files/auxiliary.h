@@ -72,5 +72,4 @@ void set_curr_vector(HASHTABLE *curr_scope, valor_lexico *vl_identificador);
 void set_dimension_size(int dim_idx, int dim_size);
 
 
-
-
+char* itoa(int value);

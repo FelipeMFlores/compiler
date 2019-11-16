@@ -308,13 +308,13 @@ void generate_assign_vec(NODE *arvore) {
     }
     sprintf(desloc_rbss_char, "%d", vl->desloc);
 
-    char* dims[MAX_DIM];  // dimensoes acessar.
+    char* deslocs[MAX_DIM];  // deslocamentos nas dimensoes.
     int vector_number_of_dims = 0;
     for (i = 0; i < MAX_DIM; i++) {        
         if (vl->dimensions_size[i] != -1) {
             vector_number_of_dims++;
         }
-        dims[i] = NULL;
+        deslocs[i] = NULL;
     }
 
     // verifica posicoes acessar nas dimensoes:
@@ -322,7 +322,7 @@ void generate_assign_vec(NODE *arvore) {
     i = 0;
     while (percorre) {
         // pega o registrador da dimensao atual:
-        dims[i] = percorre->temp;
+        deslocs[i] = percorre->temp;
         i++;
         percorre = percorre->firstKid;
         if (!percorre)
@@ -331,14 +331,14 @@ void generate_assign_vec(NODE *arvore) {
             percorre = percorre->siblings;
         }
     }
-    // for (i = 0; i < MAX_DIM && dims[i]; i++) {
-    //     printf("%s\n", dims[i]);
+    // for (i = 0; i < MAX_DIM && deslocs[i]; i++) {
+    //     printf("%s\n", deslocs[i]);
     // }
     
     // ----------------------------------------------
 
     // base: rbss + desloc_rbss.
-    // deslocamentos nas dimensoes: guardados em registradores em dims.
+    // deslocamentos nas dimensoes: guardados em registradores em deslocs.
     // numero total de dimensoes do array: vector_number_of_dims.
     // tamanhos originais das dimensoes do array: vl->dimensions_size.
 
@@ -349,15 +349,44 @@ void generate_assign_vec(NODE *arvore) {
     ILOC *newiloc;
 
     if (vector_number_of_dims == 1) {
+        // base + desloc1 * 4
+
         //addI    r1, c2  =>  r3    // r3 = r1 + c2
         //multI   r1, c2  =>  r3    // r3 = r1 * c2
+        //mult    r1, r2  =>  r3    // r3 = r1 * r2
         //add     r1, r2  =>  r3    // r3 = r1 + r2
         newiloc = new_iloc("addI", "rbss", desloc_rbss_char, base);
         arvore->code_list = add_iloc(arvore->code_list, newiloc);
-        newiloc = new_iloc("multI", dims[0], "4", aux);
+        newiloc = new_iloc("multI", deslocs[0], "4", aux);
         arvore->code_list = add_iloc(arvore->code_list, newiloc);
         newiloc = new_iloc("add", base, aux, final_address);
         arvore->code_list = add_iloc(arvore->code_list, newiloc);
+    }
+    else if (vector_number_of_dims == 2) {
+        // base + (desloc1 * tamdim2 + desloc2) * 4
+
+        // calcula base:
+        newiloc = new_iloc("addI", "rbss", desloc_rbss_char, base); 
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // (desloc1 * tamdim2)
+        newiloc = new_iloc("multI", deslocs[0], itoa(vl->dimensions_size[1]), aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // + desloc2
+        newiloc = new_iloc("add", aux, deslocs[1], aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // * 4
+        newiloc = new_iloc("multI", aux, "4", aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // + base
+        newiloc = new_iloc("add", base, aux, final_address);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+    }
+    else {
+
     }
 
 
@@ -427,7 +456,10 @@ void generate_lit_val(NODE *arvore) {
     ILOC *newiloc = new_iloc("loadI", arvore->data->value.string, arvore->temp, NULL);
     //printf("$$$$%s**\n", arvore->data->value.string);
     arvore->code_list = add_iloc(arvore->code_list, newiloc);
+    if (arvore->firstKid)
+        arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->code_list);
 }
+
 
 void generate_while(NODE *arvore) {
     if (arvore == NULL) return;
