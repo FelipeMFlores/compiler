@@ -218,7 +218,7 @@ assignment:			TK_IDENTIFICADOR '=' expression {TCH $$ = newNode($2); setCode($$,
 														assert_compatible_type_assignment(curr_hashtable, $1, $3);
 														} //pai é o =
 					| TK_IDENTIFICADOR assignment_vector '=' expression {TCH $$ = newNode($3); 
-																			setCode($$, ASSIGN);
+																			setCode($$, ASSIGN_VEC);
 																			NODE* i = newNode($1);
 																			addChild(i, $2);
 																			addChild($$, i); addChild($$, $4);

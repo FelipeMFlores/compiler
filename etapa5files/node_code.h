@@ -7,6 +7,7 @@ enum {
 	LVD,  // local var decl.
 	LVDI,  // local var decl. com init.
 	ASSIGN,  // assignment.
+	ASSIGN_VEC,  // assignment com vector no lado esquerdo.
 	LIT_VEC_IDX, // '[index]' para arrays multidimensionais. index eh um literal inteiro. --> Usado na declaração de vetores globais!
 	EXP_VEC_IDX, // '[index]' para arrays multidimensionais. index pode ser expressao inteira. --> Usado ao fazer assigment com vetor!
 	IF, // if.
@@ -33,7 +34,7 @@ enum {
 
 	// expressoes literais:
 	LITVAL,  // OK
-	IDENT,
+	IDENT,  // OK
 	EXPVEC,  // acesso a elemento de vetor como literal expression. index pode ser expressao inteira. -> Usado no acesso a vetor!
 	EXPVEC_IDX_2 // '[index]' para arrays multidimensionais. -> Usado no acesso a vetor!
 

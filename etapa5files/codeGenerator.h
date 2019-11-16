@@ -34,6 +34,7 @@ void generate_default(NODE *arvore);
 void generate_binop(NODE *arvore, char* op);
 void generate_lit_val(NODE *arvore);
 void generate_ident(NODE *arvore);
+void generate_assign(NODE *arvore);
 
 void output_code(void *arvore);
 void print_code(NODE* arvore);
