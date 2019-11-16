@@ -8,6 +8,7 @@
 
 // creates a new iloc instruction, some args may be NULL
 ILOC* new_iloc(char* operation, char* arg1, char* arg2, char* arg3);
+ILOC* init_label();
 //free iloc, operation and args
 void free_iloc(ILOC* iloc);
 
@@ -33,6 +34,7 @@ void generate_code_rec(NODE* arvore);
 void generate_default(NODE *arvore);
 void generate_binop(NODE *arvore, char* op);
 void generate_lit_val(NODE *arvore);
+void generate_while(NODE *arvore);
 
 void output_code(void *arvore);
 void print_code(NODE* arvore);
