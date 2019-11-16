@@ -38,6 +38,7 @@ void generate_while(NODE *arvore);
 void generate_ident(NODE *arvore);
 void generate_assign(NODE *arvore);
 void generate_if(NODE* arvore);
+void generate_if_else(NODE* arvore);
 
 void output_code(void *arvore);
 void print_code(NODE* arvore);
