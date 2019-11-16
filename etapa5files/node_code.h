@@ -12,7 +12,7 @@ enum {
 	EXP_VEC_IDX, // '[index]' para arrays multidimensionais. index pode ser expressao inteira. --> Usado ao fazer assigment com vetor!
 	IF, // if.
 	IF_ELSE, // if-else.
-	WHILE, // while.
+	WHILE, // OK // while.
 	FOR, // for.  NAO NECESSARIO.
 	FLSC, // for list simple command. NAO NECESSARIO.
 
