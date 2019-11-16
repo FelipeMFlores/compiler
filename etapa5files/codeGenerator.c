@@ -161,7 +161,7 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
     //not sure if sibling or childrens first
     generate_code_rec(arvore->firstKid, need_short_circuit);
     generate_code_rec(arvore->siblings, need_short_circuit);
-
+    int simple_command = 0;
 	switch (arvore->code){
 	// OPERADORES:
     case ADD:
@@ -212,16 +212,20 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
 
     // CONDICIONAIS:
     case IF:
+        simple_command = 1;
         break;
     case IF_ELSE:
+        simple_command = 1;
         break;
     case WHILE:
         generate_while(arvore);
+        simple_command = 1;
         break;
 
     // OUTROS:
     case ASSIGN:
         generate_assign(arvore);
+        simple_command = 1;
         break;
 
 	// LITERAIS:
@@ -234,6 +238,17 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
 	default:
 		generate_default(arvore);
 	}
+    //concat next command. third child
+    if (simple_command) {
+        NODE* last_child = arvore->firstKid;
+        if(last_child == NULL) return;
+        last_child = last_child->siblings;
+        if(last_child == NULL) return;
+        last_child = last_child->siblings;
+        if(last_child == NULL) return; 
+
+        arvore->code_list = concat_lists(arvore->code_list, last_child->code_list);
+    }
 }
 
 void generate_binop(NODE *arvore, char* op){
