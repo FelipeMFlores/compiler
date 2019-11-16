@@ -385,8 +385,21 @@ void generate_assign_vec(NODE *arvore) {
         newiloc = new_iloc("add", base, aux, final_address);
         arvore->code_list = add_iloc(arvore->code_list, newiloc);
     }
-    else {
+    else if (vector_number_of_dims > 2) {
+        // calcula base:
+        newiloc = new_iloc("addI", "rbss", desloc_rbss_char, base); 
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
 
+        // calcula formula (resultado deve estar no registrador aux):
+        multi_dimensional_formula(arvore, aux, deslocs, vl, vector_number_of_dims);
+
+        // * 4
+        newiloc = new_iloc("multI", aux, "4", aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // + base
+        newiloc = new_iloc("add", base, aux, final_address);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
     }
 
 
@@ -402,6 +415,32 @@ void generate_assign_vec(NODE *arvore) {
     // firstkid->siblings: expression que quer escrever.
     arvore->code_list = concat_lists(arvore->firstKid->siblings->code_list, arvore->firstKid->code_list);
     arvore->code_list = concat_lists(arvore->code_list, nlistaux);
+}
+
+void multi_dimensional_formula(NODE *arvore, char *reg_res, char *deslocs[], HASHTABLE_VALUE *vl, int vector_number_of_dims) {
+    // deslocamentos nas dimensoes: guardados em registradores em deslocs.
+    // numero total de dimensoes do array: vector_number_of_dims.
+    // tamanhos originais das dimensoes do array: vl->dimensions_size.
+    // resultado deve estar em reg_res.
+
+    // ((((desloc1) * tamdim2 + desloc2) * tamdim3 + desloc3) * tamdim4 + desloc4) ....
+
+    //i2i r1 => r2 // r2 = r1 para inteiros
+    //multI   r1, c2  =>  r3    // r3 = r1 * c2
+
+    ILOC *newiloc;
+    newiloc = new_iloc("i2i", deslocs[0], reg_res, NULL);
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+    int i;
+    for (i = 1; i < vector_number_of_dims; i++) {
+        newiloc = new_iloc("multI", reg_res, itoa(vl->dimensions_size[i]), reg_res); // * tamdimN
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        newiloc = new_iloc("add", reg_res, deslocs[i], reg_res); // + deslocN
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+    }
+
 }
 
 void generate_lvdi(NODE *arvore) {

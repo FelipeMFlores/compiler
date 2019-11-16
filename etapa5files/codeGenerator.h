@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../tree.h"
+#include "../etapa4files/hashtable_value.h"
 
 #define MAX_SIZE 5 //1 char + 1 int
 
@@ -42,6 +43,8 @@ void generate_if_else(NODE* arvore);
 void generate_lvdi(NODE *arvore);
 void generate_assign_vec(NODE *arvore);
 void generate_exp_vec_idx(NODE *arvore);
+
+void multi_dimensional_formula(NODE *arvore, char *reg_res, char *deslocs[], HASHTABLE_VALUE *vl, int vector_number_of_dims);
 
 void output_code(void *arvore);
 void print_code(NODE* arvore);
