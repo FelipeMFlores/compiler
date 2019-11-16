@@ -118,14 +118,14 @@ void print_ncode(NODE *node) {
 	printf("print_ncode: %p ", (void*)(node));
 	switch(node->code) {
 		case INVALID_CODE:printf("INVALID_CODE");break;case GVD:printf("GVD");break;
-		case LVD:printf("LVD");break;case LVDI:printf("LVDI");case ASSIGN:printf("ASSIGN");
-		case LIT_VEC_IDX:printf("LIT_VEC_IDX");break;case EXP_VEC_IDX:printf("EXP_VEC_IDX");
-		case IF:printf("IF");break;case IF_ELSE:printf("IF_ELSE");case WHILE:printf("WHILE");
-		case FOR:printf("FOR");break;case FLSC:printf("FLSC");case OR:printf("OR");case AND:printf("AND");
-		case ADD:printf("ADD");break;case SUB:printf("SUB");case MULT:printf("MULT");case DIV:printf("DIV");
-		case LE:printf("LE");break;case GE:printf("GE");case EQ:printf("EQ");case NEQ:printf("NEQ");
-		case LESS:printf("LESS");break;case GREAT:printf("GREAT");case LITVAL:printf("LITVAL");
-		case IDENT:printf("IDENT");break;case EXPVEC:printf("EXPVEC");case EXPVEC_IDX_2:printf("EXPVEC_IDX_2");
+		case LVD:printf("LVD");break;case LVDI:printf("LVDI");break;case ASSIGN:printf("ASSIGN");break;
+		case LIT_VEC_IDX:printf("LIT_VEC_IDX");break;case EXP_VEC_IDX:printf("EXP_VEC_IDX");break;
+		case IF:printf("IF");break;case IF_ELSE:printf("IF_ELSE");break;case WHILE:printf("WHILE");break;
+		case FOR:printf("FOR");break;case FLSC:printf("FLSC");break;case OR:printf("OR");break;case AND:printf("AND");break;
+		case ADD:printf("ADD");break;case SUB:printf("SUB");break;case MULT:printf("MULT");break;case DIV:printf("DIV");break;
+		case LE:printf("LE");break;case GE:printf("GE");break;case EQ:printf("EQ");break;case NEQ:printf("NEQ");break;
+		case LESS:printf("LESS");break;case GREAT:printf("GREAT");break;case LITVAL:printf("LITVAL");break;
+		case IDENT:printf("IDENT");break;case EXPVEC:printf("EXPVEC");break;case EXPVEC_IDX_2:printf("EXPVEC_IDX_2");break;
 		case GVECD:printf("GVECD");break;
 		default: printf("??");
 	}
@@ -139,17 +139,28 @@ void generate_code(void *arvore_void) {
     NODE *arvore = (NODE*)arvore_void;
     global_scope = main_scope->prev;
 
-	generate_code_rec(arvore);
+	generate_code_rec(arvore, 0);
 	print_code(arvore);
 
 }
 
-void generate_code_rec(NODE* arvore) {
+void generate_code_rec(NODE* arvore, int short_circuit) {
 	if(arvore == NULL) return;
 
+    int need_short_circuit = 0;
+    if (short_circuit) {
+        need_short_circuit = 1;
+    }
+    else {
+        if (arvore->code == IF || arvore->code == IF_ELSE || arvore->code == WHILE ||
+            arvore->code == FOR) {
+            need_short_circuit = 1;
+        }
+    }
+
     //not sure if sibling or childrens first
-    generate_code_rec(arvore->firstKid);
-    generate_code_rec(arvore->siblings);
+    generate_code_rec(arvore->firstKid, need_short_circuit);
+    generate_code_rec(arvore->siblings, need_short_circuit);
 
 	switch (arvore->code){
 	// OPERADORES:
@@ -164,6 +175,20 @@ void generate_code_rec(NODE* arvore) {
         break;
     case DIV:
         generate_binop(arvore, "div");
+        break;
+    case OR:
+        if (!need_short_circuit)
+            generate_binop(arvore, "or");
+        else {
+
+        }
+        break;
+    case AND:
+        if (!need_short_circuit)
+            generate_binop(arvore, "and");
+        else {
+            
+        }
         break;
 	// RELACIONAIS:
 	case LE:
@@ -184,13 +209,27 @@ void generate_code_rec(NODE* arvore) {
 	case GREAT:
         generate_binop(arvore, "cmp_GT");
        	break;
+
+    // CONDICIONAIS:
+    case IF:
+        break;
+    case IF_ELSE:
+        break;
+    case WHILE:
+        generate_while(arvore);
+        break;
+
+    // OUTROS:
+    case ASSIGN:
+        generate_assign(arvore);
+        break;
+
 	// LITERAIS:
     case LITVAL:
         generate_lit_val(arvore);
 		break;
-    // FLUXO:
-    case WHILE:
-        generate_while(arvore);
+    case IDENT:
+        generate_ident(arvore);
         break;
 	default:
 		generate_default(arvore);
@@ -206,6 +245,45 @@ void generate_binop(NODE *arvore, char* op){
 	arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
 
     //add to e.code
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
+}
+
+void generate_assign(NODE *arvore) {
+    // firstkid: registrador com o endereco de memoria a ser escrito.
+    // firstkid->siblings: registrador com o valor a escrever.
+    if(arvore == NULL) return;
+    ILOC *newiloc;
+
+    printf("XX%s|%s\n", arvore->firstKid->temp, arvore->firstKid->siblings->temp);
+
+    newiloc = new_iloc("store", arvore->firstKid->temp, arvore->firstKid->siblings->temp, NULL);
+    arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
+}
+
+void generate_ident(NODE *arvore) {
+    if (arvore == NULL) return;
+    arvore->temp = generate_register();
+    char *ident_name = arvore->data->value.string;
+    HASHTABLE_VALUE *val = get_value_in_current_or_outer_scope(ident_name, main_scope);
+
+    ILOC *newiloc;
+
+    char *char_mem_desloc = malloc(30);
+    int i;
+    for (i = 0; i < 30; i++)
+        char_mem_desloc[i] = '\0';
+    
+    sprintf(char_mem_desloc, "%d", val->desloc);
+    //printf("&&XX%s((\n", char_mem_desloc);
+
+    if (val->local_var) {
+        newiloc = new_iloc("loadAI", "rfp", char_mem_desloc, arvore->temp);
+    }
+    else {
+        newiloc = new_iloc("loadAI", "rbss", char_mem_desloc, arvore->temp);
+    }
+
     arvore->code_list = add_iloc(arvore->code_list, newiloc);
 }
 
@@ -325,14 +403,14 @@ char* get_node_label(NODE *node) {
 	}
 	switch(node->code) {
 		case INVALID_CODE:strcpy(label,"INVALID_CODE");break;case GVD:strcpy(label,"GVD");break;
-		case LVD:strcpy(label,"LVD");break;case LVDI:strcpy(label,"LVDI");case ASSIGN:strcpy(label,"ASSIGN");
-		case LIT_VEC_IDX:strcpy(label,"LIT_VEC_IDX");break;case EXP_VEC_IDX:strcpy(label,"EXP_VEC_IDX");
-		case IF:strcpy(label,"IF");break;case IF_ELSE:strcpy(label,"IF_ELSE");case WHILE:strcpy(label,"WHILE");
-		case FOR:strcpy(label,"FOR");break;case FLSC:strcpy(label,"FLSC");case OR:strcpy(label,"OR");case AND:strcpy(label,"AND");
-		case ADD:strcpy(label,"ADD");break;case SUB:strcpy(label,"SUB");case MULT:strcpy(label,"MULT");case DIV:strcpy(label,"DIV");
-		case LE:strcpy(label,"LE");break;case GE:strcpy(label,"GE");case EQ:strcpy(label,"EQ");case NEQ:strcpy(label,"NEQ");
-		case LESS:strcpy(label,"LESS");break;case GREAT:strcpy(label,"GREAT");case LITVAL:strcpy(label,"LITVAL");
-		case IDENT:strcpy(label,"IDENT");break;case EXPVEC:strcpy(label,"EXPVEC");case EXPVEC_IDX_2:strcpy(label,"EXPVEC_IDX_2");
+		case LVD:strcpy(label,"LVD");break;case LVDI:strcpy(label,"LVDI");break;case ASSIGN:strcpy(label,"ASSIGN");break;
+		case LIT_VEC_IDX:strcpy(label,"LIT_VEC_IDX");break;case EXP_VEC_IDX:strcpy(label,"EXP_VEC_IDX");break;
+		case IF:strcpy(label,"IF");break;case IF_ELSE:strcpy(label,"IF_ELSE");break;case WHILE:strcpy(label,"WHILE");break;
+		case FOR:strcpy(label,"FOR");break;case FLSC:strcpy(label,"FLSC");break;case OR:strcpy(label,"OR");break;case AND:strcpy(label,"AND");break;
+		case ADD:strcpy(label,"ADD");break;case SUB:strcpy(label,"SUB");break;case MULT:strcpy(label,"MULT");break;case DIV:strcpy(label,"DIV");break;
+		case LE:strcpy(label,"LE");break;case GE:strcpy(label,"GE");break;case EQ:strcpy(label,"EQ");break;case NEQ:strcpy(label,"NEQ");break;
+		case LESS:strcpy(label,"LESS");break;case GREAT:strcpy(label,"GREAT");break;case LITVAL:strcpy(label,"LITVAL");break;
+		case IDENT:strcpy(label,"IDENT");break;case EXPVEC:strcpy(label,"EXPVEC");break;case EXPVEC_IDX_2:strcpy(label,"EXPVEC_IDX_2");break;
 		case GVECD:strcpy(label, "GVECD");break;
 		default: strcpy(label, "??");
 	}

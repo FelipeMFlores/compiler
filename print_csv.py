@@ -22,8 +22,10 @@ with open("e3.csv", 'r') as csv:
 			if not pai in nodes:
 				nodes.add(pai)
 				dot.node(pai, mydict[pai])
+				#dot.node(pai)
 			if not filho in nodes:
 				nodes.add(filho)
+				#dot.node(filho)
 				dot.node(filho, mydict[filho])
 
 			dot.edge(pai, filho)

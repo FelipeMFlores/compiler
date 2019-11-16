@@ -1,6 +1,7 @@
 int main(){
     int a;
-    a = 1 + 2;
+    a = 2;
+    a = 3;
     while (0 < 1) do {
         a = 2 + 3;
         a = 4 + 5;
