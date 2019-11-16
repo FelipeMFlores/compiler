@@ -162,7 +162,7 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
     //not sure if sibling or childrens first
     generate_code_rec(arvore->firstKid, need_short_circuit);
     generate_code_rec(arvore->siblings, need_short_circuit);
-
+    int next_simple_command = 0;
 	switch (arvore->code){
 	// OPERADORES:
     case ADD:
@@ -213,16 +213,22 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
 
     // CONDICIONAIS:
     case IF:
+        generate_if(arvore);
+        next_simple_command = 3;
         break;
     case IF_ELSE:
+        generate_if_else(arvore);
+        next_simple_command = 4;
         break;
     case WHILE:
         generate_while(arvore);
+        next_simple_command = 3;
         break;
 
     // OUTROS:
     case ASSIGN:
         generate_assign(arvore);
+        next_simple_command = 3;
         break;
 
 	// LITERAIS:
@@ -235,6 +241,17 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
 	default:
 		generate_default(arvore);
 	}
+    //concat next command. third child
+    if (next_simple_command--) {
+        NODE* last_child = arvore->firstKid;
+        if(last_child == NULL) return;
+        while(next_simple_command--){
+            last_child = last_child->siblings;
+            if(last_child == NULL) return;
+        }
+
+        arvore->code_list = concat_lists(arvore->code_list, last_child->code_list);
+    }
 }
 
 void generate_binop(NODE *arvore, char* op){
@@ -333,15 +350,77 @@ void generate_while(NODE *arvore) {
     // BLOCO DO WHILE
     arvore->code_list =  add_iloc(arvore->code_list, label_true);
     NODE* command_of_block = arvore->firstKid->siblings;
-    while(command_of_block != NULL) {
+    if(command_of_block != NULL)
         arvore->code_list = concat_lists(arvore->code_list, command_of_block->code_list);
-        command_of_block = command_of_block->firstKid;
-    }
-    ILOC* jump_true = new_iloc("jumpI", label_begin->operation, NULL, NULL);
-    arvore->code_list =  add_iloc(arvore->code_list, jump_true);
+    ILOC* jump_begin = new_iloc("jumpI", label_begin->operation, NULL, NULL);
+    arvore->code_list =  add_iloc(arvore->code_list, jump_begin);
     // nop no final
     // LabelFalse: nop
     arvore->code_list =  add_iloc(arvore->code_list, label_false);
+    ILOC* nop = new_iloc("nop", NULL, NULL, NULL);
+    arvore->code_list = add_iloc(arvore->code_list, nop);
+}
+
+void generate_if(NODE* arvore) {
+    if (arvore == NULL) return;
+
+    // codigo da condicao || cbr (se true, jump L1. se false, jump L2) ||
+    // L1: || codigo do bloco || L2: || nop
+
+    // expr da condicao
+    arvore->code_list = concat_lists(arvore->code_list, arvore->firstKid->code_list);
+    ILOC* label_true = init_label();
+    ILOC* label_false = init_label();
+    // teste e jump
+    ILOC* test_op = new_iloc("cbr", arvore->firstKid->temp, label_true->operation, label_false->operation);
+    arvore->code_list =  add_iloc(arvore->code_list, test_op);
+    // BLOCO DO IF
+    arvore->code_list =  add_iloc(arvore->code_list, label_true);
+    NODE* command_of_block = arvore->firstKid->siblings;
+    if(command_of_block != NULL) {
+        arvore->code_list = concat_lists(arvore->code_list, command_of_block->code_list);
+    }
+    // nop no final
+    // LabelFalse: nop
+    arvore->code_list =  add_iloc(arvore->code_list, label_false);
+    ILOC* nop = new_iloc("nop", NULL, NULL, NULL);
+    arvore->code_list = add_iloc(arvore->code_list, nop);
+
+}
+
+void generate_if_else(NODE* arvore){
+    if (arvore == NULL) return;
+
+    // codigo da condicao || cbr (se true, jump L1. se false, jump L2) ||
+    // L1: || codigo do bloco true || jump L3 || L2: || codigo do bloco else || L3: nop
+
+    // expr da condicao
+    arvore->code_list = concat_lists(arvore->code_list, arvore->firstKid->code_list);
+    ILOC* label_true = init_label();
+    ILOC* label_false = init_label();
+    ILOC* label_end = init_label();
+    
+    // teste e jump
+    ILOC* test_op = new_iloc("cbr", arvore->firstKid->temp, label_true->operation, label_false->operation);
+    arvore->code_list =  add_iloc(arvore->code_list, test_op);
+    // BLOCO DO IF true
+    arvore->code_list =  add_iloc(arvore->code_list, label_true);
+    NODE* command_of_block = arvore->firstKid->siblings;
+    if(command_of_block != NULL) {
+        arvore->code_list = concat_lists(arvore->code_list, command_of_block->code_list);
+    }
+    // jump pro final
+    ILOC* jump_end = new_iloc("jumpI", label_end->operation, NULL, NULL);
+    arvore->code_list =  add_iloc(arvore->code_list, jump_end);
+    // BLOCO ELSE:
+    arvore->code_list =  add_iloc(arvore->code_list, label_false);
+    NODE* command_of_block_else = arvore->firstKid->siblings->siblings;
+    if(command_of_block_else != NULL) {
+        arvore->code_list = concat_lists(arvore->code_list, command_of_block_else->code_list);
+    }
+    // nop no final
+    // Labelend: nop
+    arvore->code_list =  add_iloc(arvore->code_list, label_end);
     ILOC* nop = new_iloc("nop", NULL, NULL, NULL);
     arvore->code_list = add_iloc(arvore->code_list, nop);
 }
