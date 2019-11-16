@@ -202,7 +202,7 @@ decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = NULL; inser
 local_var_qualifier:	TK_PR_STATIC | TK_PR_CONST | TK_PR_STATIC TK_PR_CONST
 ;
 
-local_var_init:		TK_OC_LE TK_IDENTIFICADOR {TCH $$ = newNode($1); addChild($$, newNode($2)); assert_var_exists(curr_hashtable, $2);}
+local_var_init:		TK_OC_LE TK_IDENTIFICADOR {TCH $$ = newNode($1); NODE *auxop = newNode($2); setCode(auxop, IDENT); addChild($$, auxop); assert_var_exists(curr_hashtable, $2);}
 					| TK_OC_LE litValue {$$ = newNode($1); addChild($$, $2);}
 ;
 
