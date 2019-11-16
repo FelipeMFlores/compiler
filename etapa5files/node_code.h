@@ -36,7 +36,12 @@ enum {
 	LITVAL,  // OK
 	IDENT,  // OK
 	EXPVEC,  // acesso a elemento de vetor como literal expression. index pode ser expressao inteira. -> Usado no acesso a vetor!
-	EXPVEC_IDX_2 // '[index]' para arrays multidimensionais. -> Usado no acesso a vetor!
+	EXPVEC_IDX_2, // '[index]' para arrays multidimensionais. -> Usado no acesso a vetor!
+
+	// apenas para debug:
+	CONTINUE,
+	BREAK,
+	RETURN
 
 };
 

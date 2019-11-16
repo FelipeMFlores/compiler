@@ -269,13 +269,13 @@ shift:				TK_IDENTIFICADOR TK_OC_SR expression {TCH $$ = newNode($2); addChild($
 																			}
 ;
 
-return:				TK_PR_RETURN expression {$$ = newNode($1); addChild($$, $2); assert_compatible_return_type(curr_hashtable, $2, 															get_line_number()); }
+return:				TK_PR_RETURN expression {$$ = newNode($1); setCode($$, RETURN); addChild($$, $2); assert_compatible_return_type(curr_hashtable, $2,	get_line_number()); }
 ;
 
-break:				TK_PR_BREAK {$$ = newNode($1);}
+break:				TK_PR_BREAK {$$ = newNode($1); setCode($$, BREAK);}
 ;
 
-continue:			TK_PR_CONTINUE {$$ = newNode($1);}
+continue:			TK_PR_CONTINUE {$$ = newNode($1); setCode($$, CONTINUE);}
 ;
 
 control_flow_command:

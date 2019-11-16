@@ -126,7 +126,8 @@ void print_ncode(NODE *node) {
 		case LE:printf("LE");break;case GE:printf("GE");break;case EQ:printf("EQ");break;case NEQ:printf("NEQ");break;
 		case LESS:printf("LESS");break;case GREAT:printf("GREAT");break;case LITVAL:printf("LITVAL");break;
 		case IDENT:printf("IDENT");break;case EXPVEC:printf("EXPVEC");break;case EXPVEC_IDX_2:printf("EXPVEC_IDX_2");break;
-		case GVECD:printf("GVECD");break;
+		case GVECD:printf("GVECD");break; case CONTINUE:printf("CONTINUE");break;case BREAK:printf("BREAK");break;
+        case RETURN:printf("RETURN");break;
 		default: printf("??");
 	}
 	printf("\n");
@@ -451,7 +452,8 @@ char* get_node_label(NODE *node) {
 		case LE:strcpy(label,"LE");break;case GE:strcpy(label,"GE");break;case EQ:strcpy(label,"EQ");break;case NEQ:strcpy(label,"NEQ");break;
 		case LESS:strcpy(label,"LESS");break;case GREAT:strcpy(label,"GREAT");break;case LITVAL:strcpy(label,"LITVAL");break;
 		case IDENT:strcpy(label,"IDENT");break;case EXPVEC:strcpy(label,"EXPVEC");break;case EXPVEC_IDX_2:strcpy(label,"EXPVEC_IDX_2");break;
-		case GVECD:strcpy(label, "GVECD");break;
+		case GVECD:strcpy(label, "GVECD");break;case CONTINUE:strcpy(label, "CONTINUE");break;case BREAK:strcpy(label, "BREAK");break;
+        case RETURN:strcpy(label, "RETURN");break;
 		default: strcpy(label, "??");
 	}
 	return label;
