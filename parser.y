@@ -29,6 +29,9 @@ int next_local_address = 0;
 int next_global_address = 0;
 int aux_calc;
 
+int dimensions_i;
+
+
 %}
 %union {
 	struct node* node;
@@ -128,12 +131,12 @@ program:			decl_var_glob program {if(erro) YYABORT; $$ = $2; }
 
 decl_var_glob:		TK_PR_STATIC type TK_IDENTIFICADOR ';' {TCH; insert_var_decl(curr_hashtable, $2, $3, (curr_hashtable == main_scope)); setAddress(curr_hashtable, $3, next_global_address); next_global_address += INTSIZE;} |
 					type TK_IDENTIFICADOR ';' {TCH; insert_var_decl(curr_hashtable, $1, $2, (curr_hashtable == main_scope)); setAddress(curr_hashtable, $2, next_global_address); next_global_address += INTSIZE; } |
-					TK_PR_STATIC type TK_IDENTIFICADOR {TCH insert_vec_decl(curr_hashtable, $2, $3); setAddress(curr_hashtable, $3, next_global_address); aux_calc = 1; } vector ';' |
-					type TK_IDENTIFICADOR {TCH insert_vec_decl(curr_hashtable, $1, $2); setAddress(curr_hashtable, $2, next_global_address); aux_calc = 1; } vector';' 
+					TK_PR_STATIC type TK_IDENTIFICADOR {TCH insert_vec_decl(curr_hashtable, $2, $3); setAddress(curr_hashtable, $3, next_global_address); aux_calc = 1; dimensions_i = 0; set_curr_vector(curr_hashtable, $3);} vector ';' |
+					type TK_IDENTIFICADOR {TCH insert_vec_decl(curr_hashtable, $1, $2); setAddress(curr_hashtable, $2, next_global_address); aux_calc = 1; dimensions_i = 0; set_curr_vector(curr_hashtable, $2);} vector';' 
 ;
 
-vector: '[' TK_LIT_INT ']' {TCH aux_calc *= extract_int($2); } vector
-		| '[' TK_LIT_INT ']' {TCH aux_calc *= extract_int($2); next_global_address += add_to_vec_decl(aux_calc); }
+vector: '[' TK_LIT_INT ']' {TCH aux_calc *= extract_int($2); set_dimension_size(dimensions_i, extract_int($2)); dimensions_i++; } vector
+		| '[' TK_LIT_INT ']' {TCH aux_calc *= extract_int($2); set_dimension_size(dimensions_i, extract_int($2)); next_global_address += add_to_vec_decl(aux_calc); }
 ;
 
 func:				TK_PR_STATIC type TK_IDENTIFICADOR param_list {commandblock_from_function = 1; return_type = $2;} command_block {TCH $$ = newNode($3); addChild($$, $6); 

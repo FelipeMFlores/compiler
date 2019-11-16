@@ -6,8 +6,6 @@
 
 #define MAX_SIZE 5 //1 char + 1 int
 
-#define MAX_DIM 200
-
 // creates a new iloc instruction, some args may be NULL
 ILOC* new_iloc(char* operation, char* arg1, char* arg2, char* arg3);
 ILOC* init_label();

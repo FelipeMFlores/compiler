@@ -1,5 +1,7 @@
 #pragma once
 
+#define MAX_DIM 200  // numero maximo de dimensoes de um array.
+
 // tipos para hashtable_value.
 // tambem tipos inferidos do node
 enum {
@@ -50,6 +52,8 @@ typedef struct hashtablevalue {
 	char *key;  // string do simbolo associado.
 
 	struct hashtablevalue *prox;  // lista encadeada.
+
+	int dimensions_size[MAX_DIM]; // array com os tamanhos das dimensoes, no caso de vetor.
 
 } HASHTABLE_VALUE;
 

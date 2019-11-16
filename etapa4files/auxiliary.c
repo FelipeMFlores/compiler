@@ -5,6 +5,8 @@
 #include "natureza.h"
 #include "auxiliary.h"
 
+HASHTABLE_VALUE *curr_vector_reading = NULL;
+
 int is_var(int tipo) {
 	return (tipo == TIPO_INT || tipo == TIPO_FLOAT || tipo == TIPO_CHAR || tipo == TIPO_BOOL || tipo == TIPO_STRING);
 }
@@ -36,6 +38,10 @@ void insert_var_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico 
 	new_hashtable_val->linha = vl_identificador->line;
 	new_hashtable_val->natureza = NATUREZA_IDENTIFICADOR;
 	new_hashtable_val->local_var = local_var;
+	int i;
+	for (i = 0; i < MAX_DIM; i++) {
+		new_hashtable_val->dimensions_size[i] = -1;
+	}
 
 	char *tipo_escrito = vl_tipo->value.string;
 	if (strcmp(tipo_escrito, "int") == 0) {
@@ -87,6 +93,11 @@ void insert_vec_decl(HASHTABLE *curr_scope, valor_lexico *vl_tipo, valor_lexico 
 	HASHTABLE_VALUE *new_hashtable_val = (HASHTABLE_VALUE*)malloc(sizeof(HASHTABLE_VALUE));
 	new_hashtable_val->linha = vl_identificador->line;
 	new_hashtable_val->natureza = NATUREZA_IDENTIFICADOR;
+	new_hashtable_val->desloc = -1;
+	int i;
+	for (i = 0; i < MAX_DIM; i++) {
+		new_hashtable_val->dimensions_size[i] = -1;
+	}
 
 	char *tipo_escrito = vl_tipo->value.string;
 	if (strcmp(tipo_escrito, "int") == 0) {
@@ -777,6 +788,17 @@ int add_to_vec_decl(int n) {
 int extract_int(valor_lexico *vl_int) {	
 	int vl = vl_int->value.inteiro;
 	return vl;
+}
+
+void set_curr_vector(HASHTABLE *curr_scope, valor_lexico *vl_identificador) {
+	char *identificador = (char*)(vl_identificador->value.string);
+	curr_vector_reading = get_value(identificador, curr_scope);
+}
+
+// set dimension size of current vector reading in parser.y.
+void set_dimension_size(int dim_idx, int dim_size) {
+	curr_vector_reading->dimensions_size[dim_idx] = dim_size;
+	printf("-> %d, %d\n", dim_idx, dim_size);
 }
 
 

@@ -5,6 +5,8 @@
 
 #define INTSIZE 4
 
+extern HASHTABLE_VALUE *curr_vector_reading;
+
 int is_var(int tipo);
 int is_vec(int tipo);
 int is_func(int tipo);
@@ -63,4 +65,12 @@ void setAddress(HASHTABLE *curr_scope, valor_lexico *vl_identificador, int deslo
 int add_to_vec_decl(int n);
 
 int extract_int(valor_lexico *vl_int);
+
+void set_curr_vector(HASHTABLE *curr_scope, valor_lexico *vl_identificador);
+
+// set dimension size of current vector reading in parser.y.
+void set_dimension_size(int dim_idx, int dim_size);
+
+
+
 
