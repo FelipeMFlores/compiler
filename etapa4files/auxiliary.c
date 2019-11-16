@@ -769,11 +769,14 @@ void setAddress(HASHTABLE *curr_scope, valor_lexico *vl_identificador, int deslo
 	printf("-- variavel %s esta em %d\n", val->key, val->desloc);
 }
 
-int add_to_vec_decl(valor_lexico *vl_intlit) {
-	int vl = vl_intlit->value.inteiro;
-	return vl * INTSIZE;
+
+int add_to_vec_decl(int n) {
+	return n * INTSIZE;
 }
 
-
+int extract_int(valor_lexico *vl_int) {	
+	int vl = vl_int->value.inteiro;
+	return vl;
+}
 
 

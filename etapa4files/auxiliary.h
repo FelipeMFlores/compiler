@@ -60,4 +60,7 @@ void assert_input_param_is_identifier(NODE *expression_node);
 
 void setAddress(HASHTABLE *curr_scope, valor_lexico *vl_identificador, int desloc);
 
-int add_to_vec_decl(valor_lexico *vl_intlit);
+int add_to_vec_decl(int n);
+
+int extract_int(valor_lexico *vl_int);
+
