@@ -10,7 +10,7 @@ enum {
 	ASSIGN_VEC,  // assignment com vector no lado esquerdo.
 	LIT_VEC_IDX, // '[index]' para arrays multidimensionais. index eh um literal inteiro. --> Usado na declaração de vetores globais!
 	EXP_VEC_IDX, // '[index]' para arrays multidimensionais. index pode ser expressao inteira. --> Usado ao fazer assigment com vetor!
-	IF, // if.
+	IF, // OK // if.
 	IF_ELSE, // if-else.
 	WHILE, // OK // while.
 	FOR, // for.  NAO NECESSARIO.

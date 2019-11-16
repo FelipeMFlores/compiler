@@ -212,6 +212,7 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
 
     // CONDICIONAIS:
     case IF:
+        generate_if(arvore);
         simple_command = 1;
         break;
     case IF_ELSE:
@@ -347,17 +348,42 @@ void generate_while(NODE *arvore) {
     // BLOCO DO WHILE
     arvore->code_list =  add_iloc(arvore->code_list, label_true);
     NODE* command_of_block = arvore->firstKid->siblings;
-    while(command_of_block != NULL) {
+    if(command_of_block != NULL)
         arvore->code_list = concat_lists(arvore->code_list, command_of_block->code_list);
-        command_of_block = command_of_block->firstKid;
-    }
-    ILOC* jump_true = new_iloc("jumpI", label_begin->operation, NULL, NULL);
-    arvore->code_list =  add_iloc(arvore->code_list, jump_true);
+    ILOC* jump_begin = new_iloc("jumpI", label_begin->operation, NULL, NULL);
+    arvore->code_list =  add_iloc(arvore->code_list, jump_begin);
     // nop no final
     // LabelFalse: nop
     arvore->code_list =  add_iloc(arvore->code_list, label_false);
     ILOC* nop = new_iloc("nop", NULL, NULL, NULL);
     arvore->code_list = add_iloc(arvore->code_list, nop);
+}
+
+void generate_if(NODE* arvore) {
+    if (arvore == NULL) return;
+
+    // codigo da condicao || cbr (se true, jump L1. se false, jump L2) ||
+    // L1: || codigo do bloco || L2: || nop
+
+    // expr da condicao
+    arvore->code_list = concat_lists(arvore->code_list, arvore->firstKid->code_list);
+    ILOC* label_true = init_label();
+    ILOC* label_false = init_label();
+    // teste e jump
+    ILOC* test_op = new_iloc("cbr", arvore->firstKid->temp, label_true->operation, label_false->operation);
+    arvore->code_list =  add_iloc(arvore->code_list, test_op);
+    // BLOCO DO IF
+    arvore->code_list =  add_iloc(arvore->code_list, label_true);
+    NODE* command_of_block = arvore->firstKid->siblings;
+    if(command_of_block != NULL) {
+        arvore->code_list = concat_lists(arvore->code_list, command_of_block->code_list);
+    }
+    // nop no final
+    // LabelFalse: nop
+    arvore->code_list =  add_iloc(arvore->code_list, label_false);
+    ILOC* nop = new_iloc("nop", NULL, NULL, NULL);
+    arvore->code_list = add_iloc(arvore->code_list, nop);
+
 }
 
 // joga pra cima o codigo
