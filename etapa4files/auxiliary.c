@@ -777,7 +777,7 @@ void setAddress(HASHTABLE *curr_scope, valor_lexico *vl_identificador, int deslo
 	HASHTABLE_VALUE *val = get_value(identificador, curr_scope);
 	val->desloc = desloc;
 
-	printf("-- variavel %s esta em %d\n", val->key, val->desloc);
+	//printf("-- variavel %s esta em %d\n", val->key, val->desloc);
 }
 
 
