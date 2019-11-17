@@ -776,6 +776,10 @@ void print_code(NODE* arvore) {
 
             }
             else {
+                if (strcmp(iloc->operation, "nop")) {
+                    printf(":");
+                }
+
                 printf("\n");
             }
         }
