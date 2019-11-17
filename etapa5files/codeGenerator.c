@@ -737,7 +737,7 @@ void print_code(NODE* arvore) {
 
         printf("%s", iloc->operation);
 
-        if (strstr(iloc->operation, "store") != NULL) {
+        if ((strstr(iloc->operation, "store") != NULL) || (strstr(iloc->operation, "cbr") != NULL)) {
             if (iloc->arg1) {
                 printf(" %s =>", iloc->arg1);
 
@@ -757,6 +757,27 @@ void print_code(NODE* arvore) {
             else {
                 printf("\n");
             }
+        }
+        else if ((strstr(iloc->operation, "jump") != NULL)) {
+            if (iloc->arg1) {
+                printf(" => %s", iloc->arg1);
+
+                if (iloc->arg2) {
+                    if (iloc->arg3) {
+                        printf(" %s, %s\n", iloc->arg2, iloc->arg3);
+                    }
+                    else {
+                        printf(" %s\n", iloc->arg2);
+                    }
+                }
+                else {
+                    printf("\n");
+                }
+
+            }
+            else {
+                printf("\n");
+            }     
         }
         else {
             if (iloc->arg1) {
