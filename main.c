@@ -20,9 +20,6 @@ int main (int argc, char **argv)
   // gera codigo:
   generate_code(arvore);
 
-  // codigo saida:
-  //output_code(arvore);
-
   libera(arvore);
   arvore = NULL;
   yylex_destroy();
