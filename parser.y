@@ -187,13 +187,15 @@ simple_command:		command_block {$$ = NULL;}
 
 decl_var_local:		local_var_qualifier type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $2, $3, (curr_hashtable == main_scope)); setAddress(curr_hashtable, $3, next_local_address); next_local_address += INTSIZE; }
 					| type TK_IDENTIFICADOR {TCH $$ = NULL; insert_var_decl(curr_hashtable, $1, $2, (curr_hashtable == main_scope)); setAddress(curr_hashtable, $2, next_local_address); next_local_address += INTSIZE; }
-					| local_var_qualifier type TK_IDENTIFICADOR local_var_init {TCH $$ = $4; addChild($$, newNode($3)); //pai é o <= 
+					| local_var_qualifier type TK_IDENTIFICADOR local_var_init {TCH $$ = $4; //pai é o <= 
+									NODE *auxi = newNode($3); setCode(auxi, IDENT); addChild($$, auxi);
 									setCode($$, LVDI); set_type_by_vl($$, $2); 
 									insert_var_decl(curr_hashtable, $2, $3, (curr_hashtable == main_scope)); 
 									setAddress(curr_hashtable, $3, next_local_address);
 									next_local_address += INTSIZE;
 									assert_compatible_type_local_var_init(curr_hashtable, $2, $4); }
-					| type TK_IDENTIFICADOR local_var_init {TCH $$ = $3; addChild($$, newNode($2));
+					| type TK_IDENTIFICADOR local_var_init {TCH $$ = $3;
+									NODE *auxi = newNode($2); setCode(auxi, IDENT); addChild($$, auxi);
 									setCode($$, LVDI); set_type_by_vl($$, $1);
 									insert_var_decl(curr_hashtable, $1, $2, (curr_hashtable == main_scope)); 
 									setAddress(curr_hashtable, $2, next_local_address);
@@ -421,8 +423,8 @@ literal_expression:
 					| func_call {$$ = $1; copy_type($1, $$);}
 ;
 
-expression_vector:  '[' expression ']' expression_vector {$$ = $2; setCode($$, EXPVEC_IDX_2); addChild($$, $4); assert_integer_expression($2);}
-					| '[' expression ']' {$$ = $2; setCode($$, EXPVEC_IDX_2); assert_integer_expression($2);}
+expression_vector:  '[' expression ']' expression_vector {$$ = $2; addChild($$, $4); assert_integer_expression($2);}
+					| '[' expression ']' {$$ = $2; assert_integer_expression($2);}
 ;
 
 %%

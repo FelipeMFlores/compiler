@@ -228,6 +228,9 @@ void generate_code_rec(NODE* arvore, int short_circuit) {
     case LVDI:  // local var declaration com inicializacao.
         generate_lvdi(arvore);
         break;
+    case EXPVEC:
+        generate_expvec(arvore);
+        break;
 
 	// LITERAIS:
     case LITVAL:
@@ -417,6 +420,119 @@ void generate_assign_vec(NODE *arvore) {
     arvore->code_list = concat_lists(arvore->code_list, nlistaux);
 }
 
+void generate_expvec(NODE *arvore) {
+    char *ident_name = arvore->data->value.string;
+    if (key_exist(ident_name, global_scope) == 0) {
+        printf("generate_expvec: error 1\n");
+        exit(-1);
+    }   
+    HASHTABLE_VALUE *vl = get_value(ident_name, global_scope);
+
+    char *desloc_rbss_char = itoa(vl->desloc);
+
+    int i;
+
+    char *deslocs[MAX_DIM];
+    int vector_number_of_dims = 0;
+    for (i = 0; i < MAX_DIM; i++) {        
+        if (vl->dimensions_size[i] != -1) {
+            vector_number_of_dims++;
+        }
+        deslocs[i] = NULL;
+    }
+
+    NODE *percorre = arvore->firstKid;
+    i = 0;
+    while (percorre) {
+        deslocs[i] = percorre->temp;
+        i++;
+        percorre = percorre->firstKid;
+    }
+    // for (i = 0; i < MAX_DIM && deslocs[i]; i++) {
+    //      printf("%s\n", deslocs[i]);
+    // }
+
+    // ----------------------------------------------
+    // base: rbss + desloc_rbss.
+    // deslocamentos nas dimensoes: guardados em registradores em deslocs.
+    // numero total de dimensoes do array: vector_number_of_dims.
+    // tamanhos originais das dimensoes do array: vl->dimensions_size.
+
+    char *base = generate_register();
+    char *aux = generate_register();
+    char *final_address = generate_register();
+
+    ILOC *newiloc;
+
+    if (vector_number_of_dims == 1) {
+        // base + desloc1 * 4
+
+        //addI    r1, c2  =>  r3    // r3 = r1 + c2
+        //multI   r1, c2  =>  r3    // r3 = r1 * c2
+        //mult    r1, r2  =>  r3    // r3 = r1 * r2
+        //add     r1, r2  =>  r3    // r3 = r1 + r2
+        newiloc = new_iloc("addI", "rbss", desloc_rbss_char, base);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+        newiloc = new_iloc("multI", deslocs[0], "4", aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+        newiloc = new_iloc("add", base, aux, final_address);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+    }
+    else if (vector_number_of_dims == 2) {
+        // base + (desloc1 * tamdim2 + desloc2) * 4
+
+        // calcula base:
+        newiloc = new_iloc("addI", "rbss", desloc_rbss_char, base); 
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // (desloc1 * tamdim2)
+        newiloc = new_iloc("multI", deslocs[0], itoa(vl->dimensions_size[1]), aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // + desloc2
+        newiloc = new_iloc("add", aux, deslocs[1], aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // * 4
+        newiloc = new_iloc("multI", aux, "4", aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // + base
+        newiloc = new_iloc("add", base, aux, final_address);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+    }
+    else if (vector_number_of_dims > 2) {
+        // calcula base:
+        newiloc = new_iloc("addI", "rbss", desloc_rbss_char, base); 
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // calcula formula (resultado deve estar no registrador aux):
+        multi_dimensional_formula(arvore, aux, deslocs, vl, vector_number_of_dims);
+
+        // * 4
+        newiloc = new_iloc("multI", aux, "4", aux);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+        // + base
+        newiloc = new_iloc("add", base, aux, final_address);
+        arvore->code_list = add_iloc(arvore->code_list, newiloc);
+    }
+
+    // ----------------------------------------------
+
+    // registrador final_address contem o endereco de onde ler o valor.
+
+    //load    r1       =>   r2    // r2 = Memoria(r1)
+
+    arvore->temp = generate_register();
+
+    newiloc = new_iloc("load", final_address, arvore->temp, NULL);
+    arvore->code_list = add_iloc(arvore->code_list, newiloc);
+
+
+
+}
+
 void multi_dimensional_formula(NODE *arvore, char *reg_res, char *deslocs[], HASHTABLE_VALUE *vl, int vector_number_of_dims) {
     // deslocamentos nas dimensoes: guardados em registradores em deslocs.
     // numero total de dimensoes do array: vector_number_of_dims.
@@ -448,13 +564,8 @@ void generate_lvdi(NODE *arvore) {
     char *ident_name = arvore->firstKid->siblings->data->value.string;
     HASHTABLE_VALUE *vl = get_value_in_current_or_outer_scope(ident_name, main_scope);
     ILOC *newiloc;
-    char *char_desloc = malloc(30);
-    int i;
-    for (i = 0; i < 30; i++) {
-        char_desloc[i] = '\0';
-    }
-    sprintf(char_desloc, "%d", vl->desloc);
-    newiloc = new_iloc("storeAI", arvore->firstKid->temp, "rfp", char_desloc);
+    //storeAI  r1       =>  r2, c3 // Memoria(r2 + c3) = r1
+    newiloc = new_iloc("storeAI", arvore->firstKid->temp, "rfp", itoa(vl->desloc));
     arvore->code_list = concat_lists(arvore->firstKid->code_list, arvore->firstKid->siblings->code_list);
     arvore->code_list = add_iloc(arvore->code_list, newiloc);
 }

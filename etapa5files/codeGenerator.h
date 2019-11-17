@@ -44,6 +44,8 @@ void generate_lvdi(NODE *arvore);
 void generate_assign_vec(NODE *arvore);
 void generate_exp_vec_idx(NODE *arvore);
 
+void generate_expvec(NODE *arvore);
+
 void multi_dimensional_formula(NODE *arvore, char *reg_res, char *deslocs[], HASHTABLE_VALUE *vl, int vector_number_of_dims);
 
 void output_code(void *arvore);
